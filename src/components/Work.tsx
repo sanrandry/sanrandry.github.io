@@ -2,8 +2,8 @@
 
 import { useReveal } from "@/hooks/useReveal";
 
-const imgProject1 = "https://www.figma.com/api/mcp/asset/9eb0dbb5-39d7-41be-aa14-c15a91efb695";
-const imgProject2 = "https://www.figma.com/api/mcp/asset/7c4b3861-de54-4164-b381-afa6e21c4155";
+const imgProject1 = "/images/project1.png";
+const imgProject2 = "/images/project2.png";
 
 const EASING = "cubic-bezier(0.645,0.045,0.355,1)";
 

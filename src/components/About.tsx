@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useReveal } from "@/hooks/useReveal";
 
-const imgProfile = "https://www.figma.com/api/mcp/asset/bcc8479d-d5af-41da-8458-ef2e312e9df7";
+const imgProfile = "/images/profile.png";
 
 const skills = [
   ["JavaScript (ES6+)", "TypeScript", "React"],
@@ -11,10 +12,87 @@ const skills = [
 
 const EASING = "cubic-bezier(0.645,0.045,0.355,1)";
 
+// Figma Component1 — container 300×360px
+// Image:   inset-[0_11.14%_8.74%_0]        → top:0 right:33px bottom:31px left:0  (fixe)
+// Border Default:  inset-[8.74%_0_0_11.14%] → top:31px right:0  bottom:0  left:33px (coin bas-droite)
+// Border mazava:   inset-[4.59%_5.7%_4.15%_5.44%] → top:17px right:17px bottom:15px left:16px (centré)
+// Animation: border glisse du coin vers le centre, overlay fade out
+
+const W = 300, H = 360;
+const IMG  = { top: 0,  right: Math.round(W * 0.1114), bottom: Math.round(H * 0.0874), left: 0 };
+const BDR_DEFAULT = { top: Math.round(H * 0.0874), right: 0,                           bottom: 0,                          left: Math.round(W * 0.1114) };
+const BDR_HOVER   = { top: Math.round(H * 0.0459), right: Math.round(W * 0.057),       bottom: Math.round(H * 0.0415),     left: Math.round(W * 0.0544) };
+
+function ProfileImage() {
+  const [hovered, setHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const reveal = useReveal(200);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const bdr = (mounted && hovered) ? BDR_HOVER : BDR_DEFAULT;
+
+  return (
+    <div
+      ref={reveal.ref}
+      style={{ width: W, height: H, position: "relative", flexShrink: 0, ...reveal.style }}
+    >
+      {/* Border box — glisse du coin bas-droite vers le centre au hover */}
+      <div
+        style={{
+          position: "absolute",
+          top:    bdr.top,
+          right:  bdr.right,
+          bottom: bdr.bottom,
+          left:   bdr.left,
+          border: "2px solid #1da8c7",
+          borderRadius: 8,
+          zIndex: 0,
+          transition: `top 300ms ${EASING}, right 300ms ${EASING}, bottom 300ms ${EASING}, left 300ms ${EASING}`,
+        }}
+      />
+
+      {/* Image — position fixe, overlay disparaît au hover */}
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          position: "absolute",
+          top:    IMG.top,
+          right:  IMG.right,
+          bottom: IMG.bottom,
+          left:   IMG.left,
+          borderRadius: 8,
+          overflow: "hidden",
+          zIndex: 1,
+          cursor: "pointer",
+        }}
+      >
+        <img
+          src={imgProfile}
+          alt="Santatraina Sitraka RANDRY"
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+        {/* Overlay teal — Default: visible, mazava: transparent */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(29, 168, 199, 0.62)",
+            borderRadius: 8,
+            opacity: hovered ? 0 : 1,
+            transition: `opacity 300ms ${EASING}`,
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function About() {
   const heading = useReveal(0);
   const text = useReveal(100);
-  const image = useReveal(200);
 
   return (
     <section id="about" className="px-[203px] py-24">
@@ -62,24 +140,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Profile image */}
-        <div ref={image.ref} style={image.style} className="shrink-0 relative w-72">
-          <div
-            className="absolute border-2 border-[#1da8c7] rounded-lg inset-0 translate-x-4 translate-y-4 z-0"
-            style={{ transition: `transform 250ms ${EASING}` }}
-          />
-          <div className="relative rounded-lg overflow-hidden z-10 group">
-            <img
-              src={imgProfile}
-              alt="Profile"
-              className="w-full h-auto rounded-lg object-cover"
-            />
-            <div
-              className="absolute inset-0 bg-[#1da8c7]/40 group-hover:bg-transparent rounded-lg"
-              style={{ transition: `background-color 250ms ${EASING}` }}
-            />
-          </div>
-        </div>
+        <ProfileImage />
       </div>
     </section>
   );
