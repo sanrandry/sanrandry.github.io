@@ -19,7 +19,7 @@ export default function SocialSidebar({ loaded }: { loaded: boolean }) {
         style={fadeUp(600, loaded)}
       >
         <a
-          href="https://www.linkedin.com/in/randry-santatraina-sitraka"
+          href="https://www.linkedin.com/in/randry-santatraina-sitraka-131415168/"
           target="_blank"
           rel="noreferrer"
           aria-label="LinkedIn"
@@ -45,7 +45,7 @@ export default function SocialSidebar({ loaded }: { loaded: boolean }) {
           </svg>
         </a>
         <a
-          href="https://www.linkedin.com/in/randry-santatraina-sitraka"
+          href="https://www.linkedin.com/in/randry-santatraina-sitraka-131415168/"
           target="_blank"
           rel="noreferrer"
           aria-label="Twitter"

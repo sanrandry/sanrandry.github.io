@@ -32,14 +32,14 @@ export default function Header({ loaded }: { loaded: boolean }) {
     { label: t.nav.contact, href: "#contact", num: "04" },
   ];
 
-  function LangToggle({ className }: { className?: string }) {
+  function LangToggle({ className, onSelect }: { className?: string; onSelect?: () => void }) {
     const langs: Lang[] = ["fr", "en"];
     return (
       <div className={`flex items-center gap-1 font-mono text-xs ${className ?? ""}`}>
         {langs.map((l, i) => (
           <span key={l} className="flex items-center gap-1">
             <button
-              onClick={() => setLang(l)}
+              onClick={() => { setLang(l); onSelect?.(); }}
               className="px-1 py-0.5 rounded"
               style={{
                 color: lang === l ? "#1da8c7" : "#495670",
@@ -58,7 +58,7 @@ export default function Header({ loaded }: { loaded: boolean }) {
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-12"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12"
       style={{
         height: scrolled ? "70px" : "100px",
         backgroundColor: "rgba(255,255,255,0.85)",
@@ -163,7 +163,7 @@ export default function Header({ loaded }: { loaded: boolean }) {
               </li>
             ))}
           </ol>
-          <LangToggle className="text-base" />
+          <LangToggle className="text-base" onSelect={() => setMenuOpen(false)} />
           <a
             href="/CV.pdf"
             className="mt-4 border border-[#1da8c7] text-[#1da8c7] text-sm font-mono px-12 py-4 rounded hover:bg-[#1da8c7]/10 transition-colors"

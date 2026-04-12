@@ -10,15 +10,15 @@ export default function Contact() {
   const content = useReveal(0);
 
   return (
-    <section id="contact" className="py-40 flex flex-col items-center text-center">
-      <div ref={content.ref} style={content.style} className="flex flex-col items-center gap-6 max-w-2xl">
+    <section id="contact" className="px-6 py-20 lg:py-40 flex flex-col items-center text-center">
+      <div ref={content.ref} style={content.style} className="flex flex-col items-center gap-5 lg:gap-6 max-w-2xl w-full">
         <span className="text-[#495670] text-sm font-mono">{t.contact.sectionNum} {t.contact.sectionLabel}</span>
 
-        <h2 className="text-[#022558] text-6xl font-bold leading-tight">
+        <h2 className="text-[#022558] text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
           {t.contact.title}
         </h2>
 
-        <p className="text-[#495670] text-lg leading-relaxed">
+        <p className="text-[#495670] text-base lg:text-lg leading-relaxed">
           {t.contact.description}
         </p>
 

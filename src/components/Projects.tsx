@@ -33,7 +33,7 @@ function ProjectCard({ title, description, tags, github, external, delay }: Card
         ...reveal.style,
         transition: `${reveal.style.transition}, box-shadow 250ms ${EASING}, transform 250ms ${EASING}`,
       }}
-      className="bg-white border border-[#022558]/10 rounded-lg p-7 flex flex-col h-72 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
+      className="bg-white border border-[#022558]/10 rounded-lg p-6 lg:p-7 flex flex-col min-h-[240px] lg:h-72 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
     >
       <div className="flex items-center justify-between mb-6">
         <svg className="text-[#1da8c7]" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -76,8 +76,8 @@ export default function Projects() {
   const heading = useReveal(0);
 
   return (
-    <section className="px-24 py-24">
-      <div ref={heading.ref} style={heading.style} className="flex flex-col items-center gap-2 mb-12">
+    <section className="px-6 py-16 md:px-12 lg:px-24 lg:py-24">
+      <div ref={heading.ref} style={heading.style} className="flex flex-col items-center gap-2 mb-10 lg:mb-12">
         <h2 className="text-[#022558] text-2xl font-bold">{t.projects.sectionTitle}</h2>
         <a
           href="#"
