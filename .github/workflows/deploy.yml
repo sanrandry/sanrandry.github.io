@@ -14,6 +14,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,24 +25,21 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
-          cache-dependency-path: portfolio-v1/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: portfolio-v1
 
       - name: Build
         run: npm run build
-        working-directory: portfolio-v1
 
       - name: Add .nojekyll
-        run: touch portfolio-v1/out/.nojekyll
+        run: touch out/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: portfolio-v1/out
+          path: out
 
   deploy:
     needs: build
