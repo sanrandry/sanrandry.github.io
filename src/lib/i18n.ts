@@ -279,7 +279,7 @@ export const translations = {
         "I'm currently open to freelance missions or full-time opportunities. Whether you have a project in mind, a question, or just want to say hi — my inbox is always open!",
       cta: "Say Hello",
     },
-    footer: "Designed & Built by Santatraina Sitraka RANDRY",
+    footer: "Built by Santatraina Sitraka RANDRY",
   },
 } as const;
 
