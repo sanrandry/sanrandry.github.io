@@ -2,71 +2,32 @@
 
 import { useState } from "react";
 import { useReveal } from "@/hooks/useReveal";
+import { useLanguage } from "@/context/LanguageContext";
 
 const EASING = "cubic-bezier(0.645,0.045,0.355,1)";
 
-const jobs = [
-  {
-    company: "Upstatement",
-    role: "Engineer",
-    period: "May 2018 - Present",
-    bullets: [
-      "Worked closely with clients across multiple verticals — ranging from fintech to consumer products to build quality, impactful web applications.",
-      "Improved build pipeline performance by 40% across multiple client projects.",
-      "Collaborated cross-functionally with design and product teams to deliver accessible experiences.",
-    ],
-  },
-  {
-    company: "Apple",
-    role: "Engineer",
-    period: "Jan 2017 - Apr 2018",
-    bullets: [
-      "Worked on developer tooling and internal platforms.",
-      "Improved build pipeline performance by 40%.",
-      "Collaborated cross-functionally with design and product.",
-    ],
-  },
-  {
-    company: "Scout Studio",
-    role: "Developer",
-    period: "Jun 2016 - Dec 2016",
-    bullets: [
-      "Built client-facing web applications.",
-      "Implemented responsive designs from Figma specs.",
-    ],
-  },
-  {
-    company: "Starry",
-    role: "Intern",
-    period: "Jan 2016 - May 2016",
-    bullets: [
-      "Developed front-end components in React.",
-      "Wrote unit tests with Jest.",
-    ],
-  },
-  {
-    company: "MullenLowe",
-    role: "Creative Dev Intern",
-    period: "Jun 2015 - Aug 2015",
-    bullets: [
-      "Built interactive campaign microsites.",
-      "Assisted with motion graphics and animations.",
-    ],
-  },
+const jobTech = [
+  ["Nuxt.js", "Pinia", "Express.js", "Strapi", "Docker", "PostgreSQL"],
+  ["Vue.js", "Nuxt.js", "Quasar", ".NET 6", "Blazor", "React", "Redux Toolkit", "Microservices", "gRPC", "PostgreSQL", "Keycloak"],
+  ["Vue.js 2", "TypeScript", "Express.js", "TypeGraphQL", "Typegoose", "RabbitMQ", "Lerna"],
+  ["Angular 16", "TypeGraphQL", "MongoDB"],
+  ["Nest.js", "Prisma", "Microservices", "Next.js", "MongoDB", "PostgreSQL"],
 ];
 
 export default function Experience() {
+  const { t } = useLanguage();
   const [active, setActive] = useState(0);
+  const jobs = t.experience.jobs;
   const job = jobs[active];
+  const tech = jobTech[active];
   const heading = useReveal(0);
   const content = useReveal(100);
 
   return (
     <section id="experience" className="px-[203px] py-24">
-      {/* Section heading */}
       <div ref={heading.ref} style={heading.style} className="flex items-center gap-3 mb-16">
-        <span className="text-[#022558] text-3xl font-bold">2.</span>
-        <h2 className="text-[#022558] text-3xl font-bold whitespace-nowrap">Where I&apos;ve Worked</h2>
+        <span className="text-[#022558] text-3xl font-bold">{t.experience.sectionNum}</span>
+        <h2 className="text-[#022558] text-3xl font-bold whitespace-nowrap">{t.experience.sectionTitle}</h2>
         <div className="flex-1 h-px bg-[#022558]/20 ml-3" />
       </div>
 
@@ -108,6 +69,13 @@ export default function Experience() {
               </li>
             ))}
           </ul>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {tech.map((tag) => (
+              <span key={tag} className="text-[#1da8c7] text-xs font-mono bg-[#1da8c7]/10 px-2 py-1 rounded">
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>

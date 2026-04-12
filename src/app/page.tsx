@@ -10,6 +10,8 @@ import Projects from "@/components/Projects";
 import Contact from "@/components/Contact";
 import SocialSidebar from "@/components/SocialSidebar";
 import Loader from "@/components/Loader";
+import Footer from "@/components/Footer";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
@@ -17,7 +19,7 @@ export default function Home() {
   const handleLoaderDone = useCallback(() => setLoaded(true), []);
 
   return (
-    <>
+    <LanguageProvider>
       <Loader onDone={handleLoaderDone} />
       <Header loaded={loaded} />
       <SocialSidebar loaded={loaded} />
@@ -29,9 +31,7 @@ export default function Home() {
         <Projects />
         <Contact />
       </main>
-      <footer className="text-center py-8 text-[#495670] text-xs font-mono">
-        <p>Designed &amp; Built by Santatraina Sitraka RANDRY</p>
-      </footer>
-    </>
+      <Footer />
+    </LanguageProvider>
   );
 }

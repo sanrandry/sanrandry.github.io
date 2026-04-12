@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useReveal } from "@/hooks/useReveal";
+import { useLanguage } from "@/context/LanguageContext";
 
 const imgProfile = "/images/profile.png";
 
 const skills = [
-  ["JavaScript (ES6+)", "TypeScript", "React"],
-  ["Eleventy", "Node.js", "WordPress"],
+  ["Vue.js / Nuxt.js", "React / Next.js", "Angular", "TypeScript"],
+  ["Node.js / Nest.js", "C# / .NET", "Docker", "PostgreSQL / MongoDB"],
 ];
 
 const EASING = "cubic-bezier(0.645,0.045,0.355,1)";
@@ -91,6 +92,7 @@ function ProfileImage() {
 }
 
 export default function About() {
+  const { t } = useLanguage();
   const heading = useReveal(0);
   const text = useReveal(100);
 
@@ -98,33 +100,18 @@ export default function About() {
     <section id="about" className="px-[203px] py-24">
       {/* Section heading */}
       <div ref={heading.ref} style={heading.style} className="flex items-center gap-3 mb-16">
-        <span className="text-[#022558] text-3xl font-bold">1.</span>
-        <h2 className="text-[#022558] text-3xl font-bold whitespace-nowrap">About me</h2>
+        <span className="text-[#022558] text-3xl font-bold">{t.about.sectionNum}</span>
+        <h2 className="text-[#022558] text-3xl font-bold whitespace-nowrap">{t.about.sectionTitle}</h2>
         <div className="flex-1 h-px bg-[#022558]/20 ml-3" />
       </div>
 
       <div className="flex gap-16 items-start">
         {/* Text */}
         <div ref={text.ref} style={text.style} className="flex flex-col gap-6 flex-1 text-lg text-[#495670] leading-relaxed">
-          <p>
-            Hello! My name is Brittany and I enjoy creating things that live on the
-            internet. My interest in web development started back in 2012 when I decided
-            to try editing custom Tumblr themes — turns out hacking together a custom
-            reblo!
-          </p>
-          <p>
-            Hello! My name is Brittany and I enjoy creating things that live on the
-            internet. My interest in web development started back in 2012 when I decided
-            to try editing custom Tumblr themes — turns out hacking together a custom
-            reblo!
-          </p>
-          <p>
-            Hello! My name is Brittany and I enjoy creating things that live on the
-            internet. My interest in web development started back in 2012 when I decided
-            to try editing custom Tumblr themes — turns out hacking together a custom
-            reblo!
-          </p>
-          <p>Here are a few technologies I&apos;ve been working with recently:</p>
+          <p>{t.about.p1}</p>
+          <p>{t.about.p2}</p>
+          <p>{t.about.p3}</p>
+          <p>{t.about.techTitle}</p>
 
           <div className="flex gap-14">
             {skills.map((col, i) => (

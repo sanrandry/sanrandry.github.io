@@ -1,9 +1,16 @@
 "use client";
 
 import { useReveal } from "@/hooks/useReveal";
+import { useLanguage } from "@/context/LanguageContext";
 
 const imgProject1 = "/images/project1.png";
 const imgProject2 = "/images/project2.png";
+const projectImages = [imgProject1, imgProject2];
+
+const projectTags = [
+  ["Vue.js", "Pinia", ".NET 6", "gRPC", "Microservices", "PostgreSQL"],
+  ["Nest.js", "Prisma", "Next.js", "Microservices", "MongoDB", "PostgreSQL"],
+];
 
 const EASING = "cubic-bezier(0.645,0.045,0.355,1)";
 
@@ -22,7 +29,6 @@ function FeaturedProject({ title, label, description, tags, image, links, revers
 
   return (
     <div ref={reveal.ref} style={reveal.style} className={`relative flex items-center ${reverse ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Image */}
       <a
         href={links?.external || "#"}
         target="_blank"
@@ -37,10 +43,7 @@ function FeaturedProject({ title, label, description, tags, image, links, revers
         />
       </a>
 
-      {/* Text card */}
-      <div
-        className={`absolute z-10 flex flex-col gap-3 w-[52%] ${reverse ? "left-0 items-start text-left" : "right-0 items-end text-right"}`}
-      >
+      <div className={`absolute z-10 flex flex-col gap-3 w-[52%] ${reverse ? "left-0 items-start text-left" : "right-0 items-end text-right"}`}>
         <span className="text-[#1da8c7] text-sm font-mono">{label}</span>
         <h3 className="text-[#022558] text-2xl font-bold">
           <a href={links?.external || "#"} className="hover:text-[#1da8c7]" style={{ transition: `color 250ms ${EASING}` }}>
@@ -81,35 +84,30 @@ function FeaturedProject({ title, label, description, tags, image, links, revers
 }
 
 export default function Work() {
+  const { t } = useLanguage();
   const heading = useReveal(0);
 
   return (
     <section id="work" className="px-[203px] py-24">
-      {/* Section heading */}
       <div ref={heading.ref} style={heading.style} className="flex items-center gap-3 mb-24">
-        <span className="text-[#022558] text-3xl font-bold">3.</span>
-        <h2 className="text-[#022558] text-3xl font-bold whitespace-nowrap">Some things I&apos;ve Built</h2>
+        <span className="text-[#022558] text-3xl font-bold">{t.work.sectionNum}</span>
+        <h2 className="text-[#022558] text-3xl font-bold whitespace-nowrap">{t.work.sectionTitle}</h2>
         <div className="flex-1 h-px bg-[#022558]/20 ml-3" />
       </div>
 
       <div className="flex flex-col gap-32">
-        <FeaturedProject
-          label="Featured Project"
-          title="Halcyon Theme"
-          description="A minimal, dark blue theme for VS Code, Sublime Text, Atom, iTerm, and more. Available on Visual Studio Marketplace, Package Control, Atom Package Manager, and npm."
-          tags={["VS Code", "Sublime Text", "Atom", "iTerm"]}
-          image={imgProject1}
-          links={{ github: "#", external: "#" }}
-        />
-        <FeaturedProject
-          label="Featured Project"
-          title="Halcyon Theme"
-          description="A minimal, dark blue theme for VS Code, Sublime Text, Atom, iTerm, and more. Available on Visual Studio Marketplace, Package Control, Atom Package Manager, and npm."
-          tags={["VS Code", "Sublime Text", "Atom", "iTerm"]}
-          image={imgProject2}
-          links={{ github: "#", external: "#" }}
-          reverse
-        />
+        {t.work.projects.map((project, i) => (
+          <FeaturedProject
+            key={i}
+            label={t.work.label}
+            title={project.title}
+            description={project.description}
+            tags={projectTags[i]}
+            image={projectImages[i]}
+            links={{ github: "#", external: "#" }}
+            reverse={i % 2 === 1}
+          />
+        ))}
       </div>
     </section>
   );

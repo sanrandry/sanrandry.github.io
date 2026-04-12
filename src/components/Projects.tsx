@@ -1,52 +1,17 @@
 "use client";
 
 import { useReveal } from "@/hooks/useReveal";
+import { useLanguage } from "@/context/LanguageContext";
 
 const EASING = "cubic-bezier(0.645,0.045,0.355,1)";
 
-const projects = [
-  {
-    title: "Integrating Algolia search with wordpress",
-    description: "Building a custom multi-site compatible WordPress plugin",
-    tags: ["Algolia", "WordPress", "PHP"],
-    github: "#",
-    external: "#",
-  },
-  {
-    title: "Integrating Algolia search with wordpress",
-    description: "Building a custom multi-site compatible WordPress plugin",
-    tags: ["Algolia", "WordPress", "PHP"],
-    github: "#",
-    external: "#",
-  },
-  {
-    title: "Integrating Algolia search with wordpress",
-    description: "Building a custom multi-site compatible WordPress plugin",
-    tags: ["Algolia", "WordPress", "PHP"],
-    github: "#",
-    external: "#",
-  },
-  {
-    title: "Integrating Algolia search with wordpress",
-    description: "Building a custom multi-site compatible WordPress plugin",
-    tags: ["Algolia", "WordPress", "PHP"],
-    github: "#",
-    external: "#",
-  },
-  {
-    title: "Integrating Algolia search with wordpress",
-    description: "Building a custom multi-site compatible WordPress plugin",
-    tags: ["Algolia", "WordPress", "PHP"],
-    github: "#",
-    external: "#",
-  },
-  {
-    title: "Integrating Algolia search with wordpress",
-    description: "Building a custom multi-site compatible WordPress plugin",
-    tags: ["Algolia", "WordPress", "PHP"],
-    github: "#",
-    external: "#",
-  },
+const projectTags = [
+  ["Vue.js", "Quasar", ".NET 6", "Blazor"],
+  ["React", "Redux Toolkit", ".NET 5", "Keycloak"],
+  ["Vue.js 2", "TypeGraphQL", "RabbitMQ", "Lerna"],
+  ["TypeGraphQL", "Prisma", "Vue.js", "PostgreSQL"],
+  ["React Native", "Nest.js", "Next.js", "MySQL"],
+  ["Next.js", "Bootstrap", "Redux"],
 ];
 
 interface CardProps {
@@ -70,7 +35,6 @@ function ProjectCard({ title, description, tags, github, external, delay }: Card
       }}
       className="bg-white border border-[#022558]/10 rounded-lg p-7 flex flex-col h-72 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
     >
-      {/* Top icons row */}
       <div className="flex items-center justify-between mb-6">
         <svg className="text-[#1da8c7]" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -91,14 +55,12 @@ function ProjectCard({ title, description, tags, github, external, delay }: Card
         </div>
       </div>
 
-      {/* Text */}
       <div className="flex flex-col gap-2 flex-1">
         <h4 className="text-[#022558] text-lg font-semibold leading-snug">{title}</h4>
         <p className="text-[#495670] text-sm leading-relaxed">{description}</p>
       </div>
 
-      {/* Tags */}
-      <div className="flex gap-4 pt-4">
+      <div className="flex gap-4 pt-4 flex-wrap">
         {tags.map((tag) => (
           <span key={tag} className="text-[#495670] text-xs font-mono">
             {tag}
@@ -110,24 +72,33 @@ function ProjectCard({ title, description, tags, github, external, delay }: Card
 }
 
 export default function Projects() {
+  const { t } = useLanguage();
   const heading = useReveal(0);
 
   return (
     <section className="px-24 py-24">
       <div ref={heading.ref} style={heading.style} className="flex flex-col items-center gap-2 mb-12">
-        <h2 className="text-[#022558] text-2xl font-bold">Other Noteworthy Projects</h2>
+        <h2 className="text-[#022558] text-2xl font-bold">{t.projects.sectionTitle}</h2>
         <a
           href="#"
           className="text-[#1da8c7] text-sm font-mono hover:underline"
           style={{ transition: `color 250ms ${EASING}` }}
         >
-          view the archive
+          {t.projects.archiveLink}
         </a>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {projects.map((project, i) => (
-          <ProjectCard key={i} {...project} delay={i * 100} />
+        {t.projects.items.map((project, i) => (
+          <ProjectCard
+            key={i}
+            title={project.title}
+            description={project.description}
+            tags={projectTags[i]}
+            github="#"
+            external="#"
+            delay={i * 100}
+          />
         ))}
       </div>
     </section>

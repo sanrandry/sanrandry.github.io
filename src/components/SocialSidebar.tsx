@@ -19,7 +19,7 @@ export default function SocialSidebar({ loaded }: { loaded: boolean }) {
         style={fadeUp(600, loaded)}
       >
         <a
-          href="https://linkedin.com"
+          href="https://www.linkedin.com/in/randry-santatraina-sitraka"
           target="_blank"
           rel="noreferrer"
           aria-label="LinkedIn"
@@ -33,7 +33,7 @@ export default function SocialSidebar({ loaded }: { loaded: boolean }) {
           </svg>
         </a>
         <a
-          href="https://github.com"
+          href="https://github.com/sanrandry"
           target="_blank"
           rel="noreferrer"
           aria-label="GitHub"
@@ -45,7 +45,7 @@ export default function SocialSidebar({ loaded }: { loaded: boolean }) {
           </svg>
         </a>
         <a
-          href="https://twitter.com"
+          href="https://www.linkedin.com/in/randry-santatraina-sitraka"
           target="_blank"
           rel="noreferrer"
           aria-label="Twitter"
@@ -65,14 +65,14 @@ export default function SocialSidebar({ loaded }: { loaded: boolean }) {
         style={fadeUp(700, loaded)}
       >
         <a
-          href="mailto:hello@example.com"
+          href="mailto:sinrandry@gmail.com"
           className="text-[#022558] text-xs font-mono tracking-widest hover:text-[#1da8c7] hover:-translate-y-1"
           style={{
             writingMode: "vertical-rl",
             transition: `all 250ms ${EASING}`,
           }}
         >
-          hello@example.com
+          sinrandry@gmail.com
         </a>
         <div className="w-px h-24 bg-[#022558]/40" />
       </div>
