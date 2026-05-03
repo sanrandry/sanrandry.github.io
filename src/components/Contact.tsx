@@ -11,7 +11,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="px-6 py-20 lg:py-40 flex flex-col items-center text-center">
-      <div ref={content.ref} style={content.style} className="flex flex-col items-center gap-5 lg:gap-6 max-w-2xl w-full">
+      <div ref={content.revealRef} style={content.revealStyle} className="flex flex-col items-center gap-5 lg:gap-6 max-w-2xl w-full">
         <span className="text-[#495670] text-sm font-mono">{t.contact.sectionNum} {t.contact.sectionLabel}</span>
 
         <h2 className="text-[#022558] text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">

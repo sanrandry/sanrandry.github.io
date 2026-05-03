@@ -25,13 +25,13 @@ export default function Experience() {
 
   return (
     <section id="experience" className="px-6 py-16 md:px-12 lg:px-[203px] lg:py-24">
-      <div ref={heading.ref} style={heading.style} className="flex items-center gap-3 mb-10 lg:mb-16">
+      <div ref={heading.revealRef} style={heading.revealStyle} className="flex items-center gap-3 mb-10 lg:mb-16">
         <span className="text-[#022558] text-2xl lg:text-3xl font-bold">{t.experience.sectionNum}</span>
         <h2 className="text-[#022558] text-2xl lg:text-3xl font-bold whitespace-nowrap">{t.experience.sectionTitle}</h2>
         <div className="flex-1 h-px bg-[#022558]/20 ml-3" />
       </div>
 
-      <div ref={content.ref} style={content.style} className="flex flex-col lg:flex-row gap-0 lg:gap-10">
+      <div ref={content.revealRef} style={content.revealStyle} className="flex flex-col lg:flex-row gap-0 lg:gap-10">
 
         {/* Mobile: horizontal scrollable tabs */}
         <div className="lg:hidden flex overflow-x-auto border-b border-[#022558]/20 mb-6 -mx-6 px-6 scrollbar-hide">

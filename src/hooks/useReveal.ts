@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useReveal(delay = 0) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
+  const ref = useCallback((node: HTMLDivElement | null) => {
+    setElement(node);
+  }, []);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    if (!element) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -19,9 +21,9 @@ export function useReveal(delay = 0) {
       },
       { threshold: 0.1 }
     );
-    observer.observe(el);
+    observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [element]);
 
   const style: React.CSSProperties = {
     opacity: visible ? 1 : 0,
@@ -29,5 +31,5 @@ export function useReveal(delay = 0) {
     transition: `opacity 300ms cubic-bezier(0.645,0.045,0.355,1) ${delay}ms, transform 300ms cubic-bezier(0.645,0.045,0.355,1) ${delay}ms`,
   };
 
-  return { ref, style };
+  return { revealRef: ref, revealStyle: style };
 }

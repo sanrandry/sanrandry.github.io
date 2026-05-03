@@ -30,8 +30,8 @@ function ProfileImage() {
   return (
     <div className="flex justify-center lg:justify-end lg:shrink-0">
       <div
-        ref={reveal.ref}
-        style={{ width: W, height: H, position: "relative", ...reveal.style }}
+        ref={reveal.revealRef}
+        style={{ width: W, height: H, position: "relative", ...reveal.revealStyle }}
       >
         {/* Border box */}
         <div
@@ -93,7 +93,7 @@ export default function About() {
   return (
     <section id="about" className="px-6 py-16 md:px-12 lg:px-[203px] lg:py-24">
       {/* Section heading */}
-      <div ref={heading.ref} style={heading.style} className="flex items-center gap-3 mb-10 lg:mb-16">
+      <div ref={heading.revealRef} style={heading.revealStyle} className="flex items-center gap-3 mb-10 lg:mb-16">
         <span className="text-[#022558] text-2xl lg:text-3xl font-bold">{t.about.sectionNum}</span>
         <h2 className="text-[#022558] text-2xl lg:text-3xl font-bold whitespace-nowrap">{t.about.sectionTitle}</h2>
         <div className="flex-1 h-px bg-[#022558]/20 ml-3" />
@@ -107,7 +107,7 @@ export default function About() {
         </div>
 
         {/* Text */}
-        <div ref={text.ref} style={text.style} className="flex flex-col gap-5 lg:gap-6 flex-1 text-base lg:text-lg text-[#495670] leading-relaxed">
+        <div ref={text.revealRef} style={text.revealStyle} className="flex flex-col gap-5 lg:gap-6 flex-1 text-base lg:text-lg text-[#495670] leading-relaxed">
           <p>{t.about.p1}</p>
           <p>{t.about.p2}</p>
           <p>{t.about.p3}</p>
