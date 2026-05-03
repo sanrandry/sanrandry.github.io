@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preversion": "npm run lint",
+    "version": "git add package.json",
+    "postversion": "git push && git push --tags",
+    "release:patch": "npm version patch -m 'release: v%s'",
+    "release:minor": "npm version minor -m 'release: v%s'",
+    "release:major": "npm version major -m 'release: v%s'"
   },
   "dependencies": {
     "next": "16.2.3",
