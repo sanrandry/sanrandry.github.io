@@ -67,20 +67,18 @@ export default function WebOSPortfolio() {
   }
 
   return (
-    <main className="relative grid h-screen place-items-center overflow-hidden bg-[#eaf4fb] px-3 py-2 text-slate-900 sm:px-6">
+    <main className="relative h-screen w-full overflow-hidden bg-[#eaf4fb] p-3 text-slate-900 sm:p-5">
       <div className="pointer-events-none absolute inset-0 laptop-scene-bg" />
 
-      <div
-        className="relative"
-        style={{ width: "min(97vw, calc((100vh - 24px) * 1.6))" }}
-      >
-        <div className="relative rounded-[28px] bg-slate-950 p-[10px] shadow-2xl shadow-slate-900/30 ring-1 ring-slate-900/40">
-          <div className="absolute left-1/2 top-[10px] z-[60] h-4 w-32 -translate-x-1/2 rounded-b-2xl bg-slate-950 sm:w-44" />
-          <div className="relative aspect-[16/10] overflow-hidden rounded-[18px] bg-[#eaf4fb]">
-            <div className="pointer-events-none absolute inset-0 os-wallpaper" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_10%,rgba(14,165,233,0.2),transparent_30%),radial-gradient(circle_at_78%_18%,rgba(45,212,191,0.16),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.38),rgba(219,234,254,0.62))]" />
+      <div className="relative h-full overflow-hidden rounded-[28px] bg-slate-950 p-[10px] shadow-2xl shadow-slate-900/40 ring-1 ring-slate-900/40">
+        {/* Notch */}
+        <div className="absolute left-1/2 top-[10px] z-[60] h-4 w-32 -translate-x-1/2 rounded-b-2xl bg-slate-950 sm:w-44" />
 
-      <header className="absolute left-0 right-0 top-0 z-50 flex h-7 items-center justify-between border-b border-slate-900/10 bg-white/62 px-2 text-[13px] text-slate-900 shadow-lg shadow-sky-900/10 backdrop-blur-2xl">
+        <div className="relative h-full overflow-hidden rounded-[18px] bg-[#eaf4fb]">
+          <div className="pointer-events-none absolute inset-0 os-wallpaper" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_10%,rgba(14,165,233,0.2),transparent_30%),radial-gradient(circle_at_78%_18%,rgba(45,212,191,0.16),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.38),rgba(219,234,254,0.62))]" />
+
+      <header className="absolute left-0 right-0 top-0 z-50 flex h-7 items-center justify-between rounded-t-[18px] border-b border-slate-900/10 bg-white/62 px-2 text-[13px] text-slate-900 shadow-lg shadow-sky-900/10 backdrop-blur-2xl">
         <nav className="flex min-w-0 items-center gap-1" aria-label="System menu">
           <button
             type="button"
@@ -335,9 +333,7 @@ export default function WebOSPortfolio() {
           </span>
         </button>
       </footer>
-          </div>
         </div>
-        <div className="mx-auto h-5 w-[86%] rounded-[50%] bg-slate-900/18 blur-md" />
       </div>
     </main>
   );
