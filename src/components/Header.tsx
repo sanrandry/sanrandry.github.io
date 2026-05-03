@@ -14,6 +14,40 @@ function fadeDown(delay: number, loaded: boolean): React.CSSProperties {
   };
 }
 
+function LangToggle({
+  lang,
+  setLang,
+  className,
+  onSelect,
+}: {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  className?: string;
+  onSelect?: () => void;
+}) {
+  const langs: Lang[] = ["fr", "en"];
+  return (
+    <div className={`flex items-center gap-1 font-mono text-xs ${className ?? ""}`}>
+      {langs.map((l, i) => (
+        <span key={l} className="flex items-center gap-1">
+          <button
+            onClick={() => { setLang(l); onSelect?.(); }}
+            className="px-1 py-0.5 rounded"
+            style={{
+              color: lang === l ? "#1da8c7" : "#495670",
+              fontWeight: lang === l ? 700 : 400,
+              transition: `color 200ms ${EASING}`,
+            }}
+          >
+            {l.toUpperCase()}
+          </button>
+          {i < langs.length - 1 && <span className="text-[#022558]/30">|</span>}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function Header({ loaded }: { loaded: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,30 +65,6 @@ export default function Header({ loaded }: { loaded: boolean }) {
     { label: t.nav.work, href: "#work", num: "03" },
     { label: t.nav.contact, href: "#contact", num: "04" },
   ];
-
-  function LangToggle({ className, onSelect }: { className?: string; onSelect?: () => void }) {
-    const langs: Lang[] = ["fr", "en"];
-    return (
-      <div className={`flex items-center gap-1 font-mono text-xs ${className ?? ""}`}>
-        {langs.map((l, i) => (
-          <span key={l} className="flex items-center gap-1">
-            <button
-              onClick={() => { setLang(l); onSelect?.(); }}
-              className="px-1 py-0.5 rounded"
-              style={{
-                color: lang === l ? "#1da8c7" : "#495670",
-                fontWeight: lang === l ? 700 : 400,
-                transition: `color 200ms ${EASING}`,
-              }}
-            >
-              {l.toUpperCase()}
-            </button>
-            {i < langs.length - 1 && <span className="text-[#022558]/30">|</span>}
-          </span>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <header
@@ -117,7 +127,7 @@ export default function Header({ loaded }: { loaded: boolean }) {
           ))}
         </ol>
         <div style={fadeDown(500, loaded)} className="flex items-center gap-4">
-          <LangToggle />
+          <LangToggle lang={lang} setLang={setLang} />
           <a
             href="/CV.pdf"
             className="border border-[#1da8c7] text-[#1da8c7] text-sm font-mono px-4 py-3 rounded hover:bg-[#1da8c7]/10"
@@ -163,7 +173,7 @@ export default function Header({ loaded }: { loaded: boolean }) {
               </li>
             ))}
           </ol>
-          <LangToggle className="text-base" onSelect={() => setMenuOpen(false)} />
+          <LangToggle lang={lang} setLang={setLang} className="text-base" onSelect={() => setMenuOpen(false)} />
           <a
             href="/CV.pdf"
             className="mt-4 border border-[#1da8c7] text-[#1da8c7] text-sm font-mono px-12 py-4 rounded hover:bg-[#1da8c7]/10 transition-colors"

@@ -28,10 +28,10 @@ function ProjectCard({ title, description, tags, github, external, delay }: Card
 
   return (
     <div
-      ref={reveal.ref}
+      ref={reveal.revealRef}
       style={{
-        ...reveal.style,
-        transition: `${reveal.style.transition}, box-shadow 250ms ${EASING}, transform 250ms ${EASING}`,
+        ...reveal.revealStyle,
+        transition: `${reveal.revealStyle.transition}, box-shadow 250ms ${EASING}, transform 250ms ${EASING}`,
       }}
       className="bg-white border border-[#022558]/10 rounded-lg p-6 lg:p-7 flex flex-col min-h-[240px] lg:h-72 shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer"
     >
@@ -77,7 +77,7 @@ export default function Projects() {
 
   return (
     <section className="px-6 py-16 md:px-12 lg:px-24 lg:py-24">
-      <div ref={heading.ref} style={heading.style} className="flex flex-col items-center gap-2 mb-10 lg:mb-12">
+      <div ref={heading.revealRef} style={heading.revealStyle} className="flex flex-col items-center gap-2 mb-10 lg:mb-12">
         <h2 className="text-[#022558] text-2xl font-bold">{t.projects.sectionTitle}</h2>
         <a
           href="#"

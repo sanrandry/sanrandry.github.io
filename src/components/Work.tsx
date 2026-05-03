@@ -28,7 +28,7 @@ function FeaturedProject({ title, label, description, tags, image, links, revers
   const reveal = useReveal(0);
 
   return (
-    <div ref={reveal.ref} style={reveal.style}>
+    <div ref={reveal.revealRef} style={reveal.revealStyle}>
       {/* Mobile layout */}
       <div className="lg:hidden flex flex-col rounded-lg overflow-hidden shadow-md border border-[#022558]/10">
         <a
@@ -143,7 +143,7 @@ export default function Work() {
 
   return (
     <section id="work" className="px-6 py-16 md:px-12 lg:px-[203px] lg:py-24">
-      <div ref={heading.ref} style={heading.style} className="flex items-center gap-3 mb-10 lg:mb-24">
+      <div ref={heading.revealRef} style={heading.revealStyle} className="flex items-center gap-3 mb-10 lg:mb-24">
         <span className="text-[#022558] text-2xl lg:text-3xl font-bold">{t.work.sectionNum}</span>
         <h2 className="text-[#022558] text-2xl lg:text-3xl font-bold whitespace-nowrap">{t.work.sectionTitle}</h2>
         <div className="flex-1 h-px bg-[#022558]/20 ml-3" />
