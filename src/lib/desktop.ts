@@ -27,3 +27,8 @@ export function terminalReply(input: string, lang: "fr" | "en") {
         : `Unknown command: ${input.trim()}. Type help.`;
   }
 }
+export type Experience = "apple" | "google";
+
+export function parseExperience(value: unknown): Experience | null {
+  return value === "apple" || value === "google" ? value : null;
+}

@@ -1,5 +1,58 @@
 # Portfolio — boucle BMAD légère
 
+## Boucle — choisir son univers : iPhone ou Android
+
+Demande du 19 septembre 2026 : choix explicite iPhone/Android, avec macOS/iOS existants côté iPhone et ChromeOS/Pixel côté Android.
+
+### Cadrage et architecture
+
+- Première visite : dialogue de choix illustré, accessible au clavier, fermeture possible sans mémoriser de choix.
+- Préférence locale validée (`apple` / `google`), mémorisée seulement après action. Aucun profilage ni détection automatique de l’appareil ; stockage indisponible sans blocage.
+- Choix modifiable depuis menu/barre macOS, réglages mobiles ou réglages ChromeOS.
+- iPhone : design macOS/iOS conservé. Android : shelf/lanceur ChromeOS, contrôles de fenêtre à droite, surfaces tonales et Pixel mobile (en-tête date, widgets sculptés, icônes circulaires, recherche inférieure).
+- Une seule source pour contenus, projets, coordonnées, 3D et interactions. React/CSS/dialog/localStorage natifs ; aucune dépendance ajoutée.
+- Références primaires : [shelf ChromeOS](https://support.google.com/chromebook/answer/3113576?hl=en), [accueil Pixel](https://support.google.com/pixelphone/answer/2781850?hl=en). Inspirations web, pas des systèmes natifs ni une affiliation à Apple/Google.
+- Boucle BMAD adaptée : cadrer → construire → revue des exigences et tests → corriger → revalider. Framework non installé.
+
+### Acceptation
+
+- [x] Choix présenté au premier accès, enregistré, restauré après rechargement et modifiable dans les quatre interfaces.
+- [x] iPhone restitue les designs macOS et iOS existants.
+- [x] Android affiche un bureau ChromeOS distinct et un accueil/app Pixel distinct.
+- [x] Navigation, huit projets, terminal, CV/contact et 3D disponibles dans les deux univers.
+- [x] FR/EN, thèmes clair/sombre, clavier/focus et mouvement réduit préservés.
+- [x] Stockage bloqué/corrompu géré ; fermeture du choix sans piège clavier.
+- [x] Responsive portrait/paysage/mobile ↔ ordinateur, sans débordement ni contenu inaccessible.
+- [x] Tests, lint, build/export et inspection navigateur vérifiés, corrections documentées.
+
+### Revue / corrections
+
+- Dialogue de choix illustré FR/EN, mémorisation après clic uniquement et changement sans perdre page, langue ou thème courants.
+- Contrastes corrigés sur widgets/icônes Pixel, noms accessibles alignés avec libellés visibles, taille tactile conservée.
+- Contrôles Android différenciés : flèche retour, menu vertical, onglets Material. Lanceur/recherche et réglages ChromeOS ancrés au shelf.
+- Trois contrastes insuffisants préexistants corrigés aussi sur le bureau Apple (numéros de projets, intitulés de postes, liens Contact), sans modifier sa composition.
+- Revue de rechargement : masquage de la coque jusqu’à lecture de préférence, pour éviter un flash Apple avant Android. Repli CSS `noscript` pour conserver le contenu statique si JavaScript est désactivé.
+
+### Preuves
+
+- `npm test` : contrôles existants conservés ; parseur de préférence accepte uniquement `apple`/`google`, rejette neuf types/valeurs invalides.
+- `npm run lint` : zéro erreur ; trois avertissements `<img>` préexistants sur la version classique.
+- `npm run build` : compilation, TypeScript et export réussis. Un premier essai a échoué sur une connexion Google Fonts ; disponibilité HTTP 200 puis builds suivants réussis, sans changer de dépendance.
+- **184 états responsive** : deux univers × deux langues ; accueil + six apps en 320×568 / 390×844 / 430×932 / 844×390 tactile, six vues en 768×1024 / 1024×768 / 1440×1000. Aucun débordement ; défilement au bas des contenus et retour du focus mobiles contrôlés.
+- Choix initial, fermeture Échap, choix depuis réglages, sauvegarde puis rechargement Apple/Google testés. Valeur corrompue : dialogue proposé à nouveau. Lecture/écriture du stockage refusées : univers appliqué pour la visite avec message explicite, aucune erreur console.
+- Seize ouvertures de fiches sur export : huit projets dans chacun des deux univers. Lanceur ChromeOS recherché par « voakajy », fiche ouverte puis fermée au clavier.
+- Fenêtre ChromeOS : agrandir/restaurer/réduire/fermer/rouvrir testés ; glisser réel de 140 px, borné au bureau. Sculpture CSS conservée : 18 faces, `preserve-3d`. Mouvement réduit émulé : animations `none`, transitions `0s`, y compris sur le choix d’univers.
+- Inspections visuelles : choix 320 px et bureau, macOS/iOS conservés, ChromeOS, Pixel clair/sombre, app Android et réglages.
+- Lighthouse snapshots : six vues Pixel en clair/sombre, accueil Pixel, choix et réglages, bureaux ChromeOS/macOS après corrections : accessibilité, bonnes pratiques et SEO **100**. Navigation sur export : mêmes scores. Mesures ponctuelles, pas une certification ; pas de score global de performance annoncé.
+- Rechargement final Android, bureau/mobile : aucun audit Lighthouse échoué après correction du clignotement. JavaScript désactivé : contenu statique et lien CV visibles, repli vérifié.
+- Export servi sur `http://127.0.0.1:4173` : CV, avatar et route classique HTTP 200 ; aucune erreur/alerte console.
+
+### Livraison / limites
+
+Boucle terminée localement. Aucun commit, push ni déploiement pour cette demande ; production précédente inchangée. Validation Chrome avec émulation mobile, pas de test matériel Android/iPhone/Safari. Les deux images utilisateur non suivies restent intactes.
+
+---
+
 ## Nouvelle boucle — expérience iPhone sur mobile
 
 Demande du 19 septembre 2026 : « sur mobile met comme un ios de iphone utilise un bouucle bmad ».

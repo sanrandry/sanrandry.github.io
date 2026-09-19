@@ -53,3 +53,23 @@ assert.ok(
 console.log(
   "iOS search checks passed: accents, case, Unicode normalization, empty and literal query.",
 );
+
+const { parseExperience } = await import("../src/lib/desktop.ts");
+assert.equal(parseExperience("apple"), "apple");
+assert.equal(parseExperience("google"), "google");
+for (const invalid of [
+  null,
+  undefined,
+  "",
+  "android",
+  "ios",
+  "GOOGLE",
+  {},
+  1,
+  "<script>",
+]) {
+  assert.equal(parseExperience(invalid), null);
+}
+console.log(
+  "Experience checks passed: only persisted apple/google choices are accepted.",
+);

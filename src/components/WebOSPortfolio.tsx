@@ -9,7 +9,12 @@ import {
   type PointerEvent,
 } from "react";
 import { translations, type Lang } from "@/lib/i18n";
-import { terminalReply, normalizeSearch } from "@/lib/desktop";
+import {
+  terminalReply,
+  normalizeSearch,
+  parseExperience,
+  type Experience,
+} from "@/lib/desktop";
 import "./desktop.css";
 
 type Page =
@@ -31,8 +36,13 @@ type IconName =
   | "globe"
   | "check"
   | "copy"
-  | "external";
+  | "external"
+  | "grid"
+  | "settings";
 const paths: Record<IconName, string> = {
+  grid: "M4 4h5v5H4ZM15 4h5v5h-5ZM4 15h5v5H4ZM15 15h5v5h-5Z",
+  settings:
+    "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1Z",
   home: "m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z",
   projects:
     "M3 7V5a2 2 0 0 1 2-2h5l3 3h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 1h18",
@@ -72,7 +82,15 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
     </svg>
   );
 }
-function Clock({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
+function Clock({
+  lang,
+  compact = false,
+  dateOnly = false,
+}: {
+  lang: Lang;
+  compact?: boolean;
+  dateOnly?: boolean;
+}) {
   const [date, setDate] = useState<Date | null>(null);
   useEffect(() => {
     const update = () => setDate(new Date());
@@ -90,8 +108,9 @@ function Clock({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
               day: "numeric" as const,
               month: "short" as const,
             }),
-        hour: "2-digit",
-        minute: "2-digit",
+        ...(!dateOnly
+          ? { hour: "2-digit" as const, minute: "2-digit" as const }
+          : {}),
       }) ?? "—"}
     </time>
   );
@@ -177,6 +196,12 @@ const projectTech = [
 ];
 
 export default function WebOSPortfolio() {
+  const [experience, setExperience] = useState<Experience>("apple");
+  const [hasChosenExperience, setHasChosenExperience] = useState(false);
+  const [preferenceReady, setPreferenceReady] = useState(false);
+  const [storageUnavailable, setStorageUnavailable] = useState(false);
+  const experienceDialog = useRef<HTMLDialogElement>(null);
+  const android = experience === "google";
   const [lang, setLang] = useState<Lang>("fr");
   const [page, setPage] = useState<Page>("home");
   const [mobileAppOpen, setMobileAppOpen] = useState(false);
@@ -242,6 +267,50 @@ export default function WebOSPortfolio() {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+  useEffect(() => {
+    // ponytail: one local preference, no account or device detection. Invalid values show the chooser again.
+    const frame = requestAnimationFrame(() => {
+      let saved: Experience | null = null;
+      try {
+        saved = parseExperience(localStorage.getItem("portfolio-experience"));
+      } catch {
+        /* Storage may be blocked; the chooser still works. */
+      }
+      if (saved) {
+        setExperience(saved);
+        setHasChosenExperience(true);
+      } else requestAnimationFrame(() => experienceDialog.current?.showModal());
+      setPreferenceReady(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  function openExperience() {
+    settingsDialog.current?.close();
+    searchDialog.current?.close();
+    menu.current?.removeAttribute("open");
+    experienceDialog.current?.showModal();
+  }
+  function chooseExperience(next: Experience) {
+    setExperience(next);
+    setHasChosenExperience(true);
+    setPosition({ x: 0, y: 0 });
+    setMaximized(false);
+    try {
+      localStorage.setItem("portfolio-experience", next);
+      setStorageUnavailable(false);
+    } catch {
+      setStorageUnavailable(true);
+    }
+    experienceDialog.current?.close();
+    requestAnimationFrame(() => {
+      const target = [
+        ...document.querySelectorAll<HTMLElement>(
+          "[data-experience-trigger], .ios-app-settings, .ios-launch-app:last-child",
+        ),
+      ].find((el) => el.getClientRects().length);
+      target?.focus({ preventScroll: true });
+    });
+  }
   useEffect(() => {
     const closeMenu = (event: Event) => {
       if (!menu.current?.open) return;
@@ -397,7 +466,9 @@ export default function WebOSPortfolio() {
   function mobileIcon(item: IconName | "cv" | "settings") {
     return (
       <span className={`ios-app-icon ios-icon-${item}`} aria-hidden="true">
-        {item === "home" ? (
+        {item === "home" && android ? (
+          <Icon name="globe" size={32} />
+        ) : item === "home" ? (
           <span className="ios-compass" />
         ) : item === "about" ? (
           <Image src="/images/avatar.webp" alt="" width={64} height={64} />
@@ -417,9 +488,12 @@ export default function WebOSPortfolio() {
   }
   return (
     <div
-      className={`desktop ${dark ? "theme-dark" : ""} ${motion ? "" : "motion-off"} ${mobileAppOpen ? "mobile-app-open" : ""}`}
+      className={`desktop ${preferenceReady ? "" : "preference-loading"} ${android ? "ecosystem-google" : "ecosystem-apple"} ${dark ? "theme-dark" : ""} ${motion ? "" : "motion-off"} ${mobileAppOpen ? "mobile-app-open" : ""}`}
       lang={lang}
     >
+      <noscript>
+        <style>{".desktop.preference-loading { visibility: visible; }"}</style>
+      </noscript>
       <a
         className="desktop-skip"
         href="#portfolio-content"
@@ -467,7 +541,11 @@ export default function WebOSPortfolio() {
       </div>
       <main
         className="ios-home"
-        aria-label={say("Écran d’accueil iPhone", "iPhone home screen")}
+        aria-label={
+          android
+            ? say("Écran d’accueil Pixel", "Pixel home screen")
+            : say("Écran d’accueil iPhone", "iPhone home screen")
+        }
       >
         <h1 className="sr-only">
           {say(
@@ -476,6 +554,16 @@ export default function WebOSPortfolio() {
           )}
         </h1>
         <div className="ios-home-content">
+          {android && (
+            <div className="pixel-at-glance">
+              <span className="pixel-edition">RANDRY · PIXEL EDITION</span>
+              <Clock lang={lang} dateOnly />
+              <span>
+                <i />
+                {say("Des idées. Du code. Et vous.", "Ideas. Code. And you.")}
+              </span>
+            </div>
+          )}
           <div className="ios-widgets">
             <button
               className="ios-profile-widget"
@@ -587,7 +675,11 @@ export default function WebOSPortfolio() {
           </button>
           <nav
             className="ios-dock"
-            aria-label={say("Dock iPhone", "iPhone dock")}
+            aria-label={
+              android
+                ? say("Favoris Pixel", "Pixel favorites")
+                : say("Dock iPhone", "iPhone dock")
+            }
           >
             <button onClick={() => navigate("home")} aria-label="Portfolio">
               {mobileIcon("home")}
@@ -629,6 +721,12 @@ export default function WebOSPortfolio() {
             <button onClick={() => navigate("about")}>
               {say("À propos de ce portfolio", "About this portfolio")}
             </button>
+            <button onClick={openExperience} data-experience-trigger>
+              {say(
+                "Changer d’univers : iPhone / Android",
+                "Switch experience: iPhone / Android",
+              )}
+            </button>
             <button
               onClick={() => {
                 setPosition({ x: 0, y: 0 });
@@ -665,6 +763,14 @@ export default function WebOSPortfolio() {
           <button onClick={() => navigate("contact")}>{names.contact}</button>
         </nav>
         <div className="menubar-right">
+          <button
+            className="experience-switch"
+            onClick={openExperience}
+            data-experience-trigger
+          >
+            {android ? "Android" : "iPhone"}
+            <span aria-hidden="true"> ⇄</span>
+          </button>
           <span className="desktop-location">
             <Icon name="globe" size={13} /> Madagascar
           </span>
@@ -757,9 +863,13 @@ export default function WebOSPortfolio() {
               }
             }}
           >
-            <button className="ios-back" onClick={returnToMobileHome}>
-              <span aria-hidden="true">‹</span>
-              {say("Accueil", "Home")}
+            <button
+              className="ios-back"
+              onClick={returnToMobileHome}
+              aria-label={say("Accueil", "Home")}
+            >
+              <span aria-hidden="true">{android ? "←" : "‹"}</span>
+              <span className="ios-back-label">{say("Accueil", "Home")}</span>
             </button>
             <strong className="ios-app-title">{appName(page)}</strong>
             <button
@@ -767,7 +877,7 @@ export default function WebOSPortfolio() {
               onClick={() => settingsDialog.current?.showModal()}
               aria-label={say("Réglages", "Settings")}
             >
-              <span aria-hidden="true">•••</span>
+              <span aria-hidden="true">{android ? "⋮" : "•••"}</span>
             </button>
             <div className="traffic-lights">
               <button
@@ -796,7 +906,7 @@ export default function WebOSPortfolio() {
                     : say("Agrandir la fenêtre", "Maximize window")
                 }
               >
-                <span>↗</span>
+                <span>{android ? "□" : "↗"}</span>
               </button>
             </div>
             <span className="window-breadcrumb">
@@ -1396,7 +1506,9 @@ export default function WebOSPortfolio() {
               >
                 <span className="dock-tooltip">{names[item]}</span>
                 <span className="dock-icon">
-                  {item === "home" ? (
+                  {item === "home" && android ? (
+                    <Icon name="globe" size={31} />
+                  ) : item === "home" ? (
                     <span className="finder-face">
                       <span />
                       <span />
@@ -1450,6 +1562,146 @@ export default function WebOSPortfolio() {
           </a>
         </nav>
       </div>
+      {android && (
+        <div className="chrome-system-controls">
+          <button
+            className="chrome-launcher"
+            onClick={openSearch}
+            aria-label={say(
+              "Lanceur ChromeOS : rechercher une app ou un projet",
+              "ChromeOS launcher: search apps or projects",
+            )}
+          >
+            <Icon name="grid" size={23} />
+          </button>
+          <button
+            className="chrome-preferences"
+            onClick={() => settingsDialog.current?.showModal()}
+            data-experience-trigger
+          >
+            <span className="sr-only">
+              {say("Réglages ChromeOS", "ChromeOS settings")}{" "}
+            </span>
+            <span className="chrome-status-dot" aria-hidden="true" />
+            <Clock lang={lang} compact />
+            <Icon name="settings" size={19} />
+          </button>
+        </div>
+      )}
+      {storageUnavailable && (
+        <p className="preference-notice" role="status">
+          {say(
+            "Choix appliqué pour cette visite. Stockage local indisponible.",
+            "Choice applied for this visit. Local storage unavailable.",
+          )}
+        </p>
+      )}
+      <dialog
+        className="experience-dialog"
+        ref={experienceDialog}
+        aria-labelledby="experience-title"
+        aria-describedby="experience-description"
+      >
+        <header>
+          <span className="experience-brand">
+            r<span>.</span> <small>PORTFOLIO</small>
+          </span>
+          <div>
+            <button
+              className="experience-language"
+              onClick={() => setLang(lang === "fr" ? "en" : "fr")}
+              aria-label={
+                lang === "fr"
+                  ? "FR — Switch to English"
+                  : "EN — Passer en français"
+              }
+            >
+              {lang.toUpperCase()}
+            </button>
+            <button
+              className="experience-close"
+              onClick={() => experienceDialog.current?.close()}
+              aria-label={say(
+                "Fermer, conserver le style actuel",
+                "Close, keep current style",
+              )}
+            >
+              ×
+            </button>
+          </div>
+        </header>
+        <span className="experience-eyebrow">
+          {say("MÊME PERSONNE. DEUX UNIVERS.", "SAME PERSON. TWO WORLDS.")}
+        </span>
+        <h2 id="experience-title">
+          {say("Plutôt iPhone", "More iPhone")}
+          <br />
+          {say("ou Android ?", "or Android?")}
+        </h2>
+        <p id="experience-description">
+          {say(
+            "Mon portfolio, dans votre univers. Choisissez l’interface qui vous ressemble.",
+            "My portfolio, your world. Pick the interface that feels like home.",
+          )}
+        </p>
+        <div className="experience-options">
+          {(["apple", "google"] as const).map((option) => (
+            <button
+              key={option}
+              className={`experience-option option-${option}`}
+              onClick={() => chooseExperience(option)}
+              aria-pressed={hasChosenExperience && experience === option}
+            >
+              <span className="experience-preview" aria-hidden="true">
+                <span className="preview-window">
+                  <i />
+                  <i />
+                  <i />
+                  <span />
+                </span>
+                <span className="preview-phone">
+                  <i />
+                  <span />
+                  <b />
+                  <b />
+                  <b />
+                  <b />
+                </span>
+              </span>
+              <span className="experience-option-title">
+                {option === "apple" ? "iPhone" : "Android"}
+                <Icon name="arrow" size={22} />
+              </span>
+              <span className="experience-option-subtitle">
+                {option === "apple" ? "macOS + iOS" : "ChromeOS + Pixel"}
+              </span>
+              <span className="experience-option-copy">
+                {option === "apple"
+                  ? say(
+                      "Familier. Soigné. Tout simplement.",
+                      "Familiar. Refined. Effortless.",
+                    )
+                  : say(
+                      "Expressif. Personnel. Tout vous.",
+                      "Expressive. Personal. All you.",
+                    )}
+              </span>
+              {hasChosenExperience && experience === option && (
+                <span className="experience-current">
+                  <Icon name="check" size={13} />
+                  {say("Votre choix", "Your choice")}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+        <p className="experience-footnote">
+          {say(
+            "Choix mémorisé sur ce navigateur. Modifiable à tout moment dans les réglages.",
+            "Remembered in this browser. Change it anytime in settings.",
+          )}
+        </p>
+      </dialog>
       <dialog
         className="ios-sheet ios-settings"
         ref={settingsDialog}
@@ -1464,6 +1716,13 @@ export default function WebOSPortfolio() {
         </header>
         <p>{say("Un bureau à votre image.", "Make yourself at home.")}</p>
         <div className="ios-settings-group">
+          <button onClick={openExperience} data-experience-trigger>
+            <Icon name="grid" />
+            <span>{say("Votre univers", "Your experience")}</span>
+            <strong>
+              {android ? "Android" : "iPhone"} <span aria-hidden="true">⇄</span>
+            </strong>
+          </button>
           <button onClick={() => setDark(!dark)} aria-pressed={dark}>
             <Icon name={dark ? "moon" : "sun"} />
             <span>{say("Mode sombre", "Dark mode")}</span>

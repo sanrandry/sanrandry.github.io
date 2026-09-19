@@ -1,4 +1,4 @@
-# Randry — Portfolio macOS / iOS
+# Randry — Portfolio, deux univers
 
 Portfolio bilingue FR/EN, construit avec Next.js, React et CSS natif. Aucun moteur 3D ni nouvelle dépendance : sculpture en perspective CSS, dock, fenêtre déplaçable, projets détaillés et terminal à commandes limitées.
 
@@ -14,8 +14,10 @@ npm run lint
 npm run build
 ```
 
-- `/` : bureau macOS sur ordinateur, accueil inspiré d’iOS sur téléphone ; français par défaut, thèmes clair/sombre.
-- Mobile : widgets, grille d’apps, dock, recherche locale insensible aux accents, réglages et apps plein écran avec retour accueil. Contenus accessibles en portrait et paysage ; aucune application native Apple requise.
+- `/` : choix iPhone ou Android au premier accès ; français par défaut, thèmes clair/sombre.
+- iPhone → macOS sur ordinateur / iOS sur téléphone. Android → ChromeOS sur ordinateur / Pixel sur téléphone. Même contenu et même 3D dans les deux univers.
+- Choix enregistré dans `localStorage` (`portfolio-experience`), modifiable depuis la barre/menu macOS ou les réglages ChromeOS/mobiles. Aucun compte ni détection automatique du système ; stockage bloqué sans empêcher la navigation.
+- Mobile : widgets, grille d’apps, favoris, recherche locale insensible aux accents, réglages et apps plein écran avec retour accueil. Contenus accessibles en portrait et paysage ; aucune application native requise.
 - `/portfolio/` : ancien portfolio conservé.
 - `out/` : export statique à héberger à la racine du domaine, comme dans le workflow GitHub Pages existant. `next start` ne sert pas cet export ; utiliser un serveur de fichiers statiques pour prévisualiser `out/`.
 - Aucun envoi d’e-mail côté serveur : contact par `mailto:`. Le terminal ne lance aucun code système.
