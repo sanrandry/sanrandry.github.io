@@ -1,584 +1,1630 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
+import { translations, type Lang } from "@/lib/i18n";
+import { terminalReply, normalizeSearch } from "@/lib/desktop";
+import "./desktop.css";
 
-const PORTFOLIO_URL = "/portfolio/";
-
-function normalizeUrl(value: string) {
-  const t = value.trim();
-  if (!t) return PORTFOLIO_URL;
-  if (t.startsWith("/") || t.startsWith("http://") || t.startsWith("https://")) return t;
-  return `https://${t}`;
-}
-
-function Clock() {
-  const [time, setTime] = useState("");
-  useEffect(() => {
-    const update = () =>
-      setTime(new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
-    update();
-    const t = setInterval(update, 30_000);
-    return () => clearInterval(t);
-  }, []);
+type Page =
+  | "home"
+  | "projects"
+  | "experience"
+  | "about"
+  | "contact"
+  | "terminal";
+type IconName =
+  | Page
+  | "github"
+  | "linkedin"
+  | "arrow"
+  | "download"
+  | "sun"
+  | "moon"
+  | "code"
+  | "globe"
+  | "check"
+  | "copy"
+  | "external";
+const paths: Record<IconName, string> = {
+  home: "m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z",
+  projects:
+    "M3 7V5a2 2 0 0 1 2-2h5l3 3h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 1h18",
+  experience: "M8 6V4h8v2M3 10h18M3 7h18v13H3Zm7 3v4h4v-4",
+  about:
+    "M20 21v-2a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6v2M16 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  contact: "M3 5h18v14H3Zm0 1 9 7 9-7",
+  terminal: "m5 6 5 6-5 6m8 0h6",
+  github:
+    "M9 21v-4c-4 1-4-2-6-2m12 6v-4c0-1-.3-2-1-2.5 4-.5 6-2 6-5.5 0-1.5-.5-2.5-1.5-3.5.5-1 .5-2.5 0-3.5-2 0-3 1-4 1.5a13 13 0 0 0-5 0C8.5 3 7 2 5.5 2 5 3 5 4.5 5.5 5.5 4.5 6.5 4 7.5 4 9c0 3.5 2 5 6 5.5-.7.5-1 1.5-1 2.5",
+  linkedin: "M4 9v12M4 4v.01M10 21V9h5v2c3-4 6-2 6 2v8M15 14v7",
+  arrow: "M5 12h14m-6-6 6 6-6 6",
+  download: "M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5",
+  sun: "M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  moon: "M21 13a9 9 0 0 1-10-10 9 9 0 1 0 10 10Z",
+  code: "m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18",
+  globe:
+    "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0M3 12h18M12 3a19 19 0 0 1 0 18 19 19 0 0 1 0-18",
+  check: "m5 12 4 4L19 6",
+  copy: "M8 8h13v13H8ZM16 8V3H3v13h5",
+  external: "M14 3h7v7m0-7L10 14M10 3H3v18h18v-7",
+};
+function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   return (
-    <span aria-live="polite" aria-atomic="true" aria-label={`Heure : ${time}`}>
-      {time}
-    </span>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.65"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={paths[name]} />
+    </svg>
   );
 }
-
-// ─── Window types ────────────────────────────────────────────────────────────
-
-interface Win {
-  id: string;
-  title: string;
-  url: string;
-  address: string;
-  open: boolean;
-  minimized: boolean;
-  maximized: boolean;
-  x: number;
-  y: number;
-  z: number;
-  key: number;
-  w?: string;
-  h?: string;
+function Clock({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
+  const [date, setDate] = useState<Date | null>(null);
+  useEffect(() => {
+    const update = () => setDate(new Date());
+    update();
+    const timer = setInterval(update, 30_000);
+    return () => clearInterval(timer);
+  }, []);
+  return (
+    <time className="desktop-clock" dateTime={date?.toISOString()}>
+      {date?.toLocaleString(lang === "fr" ? "fr-FR" : "en-GB", {
+        ...(compact
+          ? {}
+          : {
+              weekday: "short" as const,
+              day: "numeric" as const,
+              month: "short" as const,
+            }),
+        hour: "2-digit",
+        minute: "2-digit",
+      }) ?? "—"}
+    </time>
+  );
 }
-
-let gZ = 1;
-function nextZ() {
-  return ++gZ;
-}
-
-// ─── BrowserWindow ───────────────────────────────────────────────────────────
-
-interface BWProps {
-  win: Win;
-  dark: boolean;
-  active: boolean;
-  onClose: (id: string) => void;
-  onMinimize: (id: string) => void;
-  onMaximize: (id: string) => void;
-  onFocus: (id: string) => void;
-  onMove: (id: string, x: number, y: number) => void;
-  onNavigate: (id: string, address: string) => void;
-  onReload: (id: string) => void;
-}
-
-function BrowserWindow({ win, dark, active, onClose, onMinimize, onMaximize, onFocus, onMove, onNavigate, onReload }: BWProps) {
-  const [addr, setAddr] = useState(win.address);
-  const drag = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
-
-  useEffect(() => setAddr(win.address), [win.address]);
-
-  function onTitleDown(e: React.MouseEvent) {
-    if (win.maximized) return;
-    if ((e.target as HTMLElement).closest("button,a,input")) return;
-    onFocus(win.id);
-    drag.current = { sx: e.clientX, sy: e.clientY, ox: win.x, oy: win.y };
-    const mm = (ev: MouseEvent) => {
-      if (!drag.current) return;
-      onMove(win.id, drag.current.ox + ev.clientX - drag.current.sx, drag.current.oy + ev.clientY - drag.current.sy);
-    };
-    const mu = () => {
-      drag.current = null;
-      document.removeEventListener("mousemove", mm);
-      document.removeEventListener("mouseup", mu);
-    };
-    document.addEventListener("mousemove", mm);
-    document.addEventListener("mouseup", mu);
-    e.preventDefault();
+function Sculpture({ motion, lang }: { motion: boolean; lang: Lang }) {
+  const scene = useRef<HTMLDivElement>(null);
+  function tilt(e: PointerEvent<HTMLDivElement>) {
+    if (
+      !motion ||
+      e.pointerType !== "mouse" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    const box = e.currentTarget.getBoundingClientRect();
+    scene.current?.style.setProperty(
+      "--tilt-x",
+      `${(e.clientY - box.top - box.height / 2) / 18}deg`,
+    );
+    scene.current?.style.setProperty(
+      "--tilt-y",
+      `${(e.clientX - box.left - box.width / 2) / 15}deg`,
+    );
   }
-
-  const isExternal = !win.url.startsWith("/");
-
-  const tb = dark
-    ? "border-slate-700 bg-slate-800/90"
-    : "border-slate-200 bg-white/85";
-  const frame = dark
-    ? "border border-slate-700 bg-slate-900/96 shadow-slate-900/60"
-    : "border border-slate-200/80 bg-white/92 shadow-slate-900/20";
-  const inputCls = dark
-    ? "border-slate-600 bg-slate-700 text-slate-200"
-    : "border-slate-200 bg-white text-slate-700 shadow-inner";
-  const navCls = dark ? "bg-white/8 text-slate-400" : "bg-slate-100 text-slate-600";
-  const btnHover = dark ? "hover:bg-white/10" : "hover:bg-slate-900/8";
-
+  function reset() {
+    scene.current?.style.setProperty("--tilt-x", "0deg");
+    scene.current?.style.setProperty("--tilt-y", "0deg");
+  }
   return (
     <div
-      role="dialog"
-      aria-label={win.title}
-      className={`absolute flex flex-col overflow-hidden rounded-xl shadow-2xl backdrop-blur-xl ${frame}`}
-      style={win.maximized
-        ? { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: win.z, resize: "none" }
-        : { position: "absolute", left: win.x, top: win.y, zIndex: win.z, width: win.w ?? "clamp(340px, 66vw, 820px)", height: win.h ?? "clamp(240px, 64vh, 620px)", resize: "both", minWidth: 300, minHeight: 180 }
-      }
-      onMouseDown={() => onFocus(win.id)}
+      className="sculpture-scene"
+      ref={scene}
+      onPointerMove={tilt}
+      onPointerLeave={reset}
+      aria-hidden="true"
     >
-      {/* Title bar */}
-      <div
-        className={`flex min-h-11 cursor-grab items-center gap-2 border-b px-3 select-none active:cursor-grabbing ${tb}`}
-        onMouseDown={onTitleDown}
-      >
-        <div className="group/tl flex shrink-0 items-center gap-1.5">
-          <button
-            onClick={() => onClose(win.id)}
-            className="relative grid h-6 w-6 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1"
-            aria-label="Fermer la fenêtre"
-          >
-            <span className="h-3 w-3 rounded-full bg-rose-400 transition" aria-hidden="true" />
-            <svg className="absolute inset-0 m-auto h-2 w-2 opacity-0 transition group-hover/tl:opacity-100" viewBox="0 0 10 10" aria-hidden="true">
-              <path d="M1 1l8 8M9 1L1 9" stroke="#7d1a1a" strokeWidth="1.8" strokeLinecap="round"/>
-            </svg>
-          </button>
-          <button
-            onClick={() => onMinimize(win.id)}
-            className="relative grid h-6 w-6 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
-            aria-label="Réduire la fenêtre"
-          >
-            <span className="h-3 w-3 rounded-full bg-amber-300 transition" aria-hidden="true" />
-            <svg className="absolute inset-0 m-auto h-2 w-2 opacity-0 transition group-hover/tl:opacity-100" viewBox="0 0 10 4" aria-hidden="true">
-              <path d="M1 2h8" stroke="#7d5500" strokeWidth="1.8" strokeLinecap="round"/>
-            </svg>
-          </button>
-          <button
-            onClick={() => onMaximize(win.id)}
-            className="relative grid h-6 w-6 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
-            aria-label={win.maximized ? "Restaurer la fenêtre" : "Maximiser la fenêtre"}
-          >
-            <span className="h-3 w-3 rounded-full bg-emerald-400 transition" aria-hidden="true" />
-            <svg className="absolute inset-0 m-auto h-2.5 w-2.5 opacity-0 transition group-hover/tl:opacity-100" viewBox="0 0 10 10" aria-hidden="true">
-              {win.maximized
-                ? <path d="M3 1H1v2M7 1h2v2M3 9H1V7M7 9h2V7" stroke="#064e3b" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                : <path d="M1 4V1h3M6 1h3v3M9 6v3H6M4 9H1V6" stroke="#064e3b" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              }
-            </svg>
-          </button>
+      <div className="orbit orbit-one" />
+      <div className="orbit orbit-two" />
+      <div className="sculpture-shadow" />
+      <span className="floating-tag tag-one">
+        <span /> frontend
+      </span>
+      <span className="floating-tag tag-two">
+        <Icon name="code" size={13} /> backend
+      </span>
+      <div className="sculpture">
+        <div className="sculpture-turn">
+          {["top", "middle", "bottom"].map((layer, index) => (
+            <div className={`slab slab-${layer}`} key={layer}>
+              <div className="slab-face slab-upper">
+                {index === 0 ? (
+                  <Icon name="code" size={64} />
+                ) : (
+                  <span className="chip-lines" />
+                )}
+              </div>
+              <div className="slab-face slab-front" />
+              <div className="slab-face slab-back" />
+              <div className="slab-face slab-left" />
+              <div className="slab-face slab-right" />
+              <div className="slab-face slab-under" />
+            </div>
+          ))}
         </div>
-
-        <div className={`hidden h-6 items-center gap-0.5 rounded-full px-1 sm:flex ${navCls}`}>
-          <button type="button" className={`h-6 w-7 rounded-full text-xs transition ${btnHover}`} aria-label="Page précédente">{"<"}</button>
-          <button type="button" className={`h-6 w-7 rounded-full text-xs transition ${btnHover}`} aria-label="Page suivante">{">"}</button>
-          <button type="button" onClick={() => onReload(win.id)} className={`h-6 w-7 rounded-full text-xs transition ${btnHover}`} aria-label="Recharger">R</button>
-        </div>
-
-        <form className="flex min-w-0 flex-1" onSubmit={(e) => { e.preventDefault(); onNavigate(win.id, addr); }}>
-          <label className="sr-only" htmlFor={`addr-${win.id}`}>Adresse</label>
-          <input
-            id={`addr-${win.id}`}
-            value={addr}
-            onChange={(e) => setAddr(e.target.value)}
-            className={`h-7 min-w-0 flex-1 rounded-full border px-3 font-mono text-xs outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 ${inputCls}`}
-            aria-label="Barre d'adresse"
-          />
-        </form>
-
-        <a
-          href={win.url}
-          target="_blank"
-          rel="noreferrer"
-          className="hidden shrink-0 rounded-full border border-cyan-600/20 bg-cyan-100 px-2.5 py-1 text-xs font-bold text-cyan-800 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 sm:block"
-        >
-          Open tab
-        </a>
       </div>
-
-      {/* Content */}
-      <div className="relative flex-1 overflow-hidden bg-white">
-        {!active && (
-          <div
-            className="absolute inset-0 z-10 cursor-pointer"
-            onMouseDown={() => onFocus(win.id)}
-            aria-hidden="true"
-          />
-        )}
-        <iframe
-          key={`${win.url}-${win.key}`}
-          src={win.url}
-          title={win.title}
-          className="h-full w-full border-0 bg-white"
-        />
-        {isExternal && (
-          <p className="pointer-events-none absolute bottom-3 left-3 right-3 rounded-xl border border-slate-200/70 bg-white/92 p-2.5 text-xs text-slate-600 shadow-xl backdrop-blur">
-            Certains sites bloquent les vues intégrées. Utilisez <strong>Open tab</strong> si la page reste blanche.
-          </p>
-        )}
-      </div>
-
-      {/* Resize handle */}
-      <div
-        className="pointer-events-none absolute bottom-1.5 right-1.5 h-4 w-4 rounded-br-lg border-b-2 border-r-2 border-cyan-500/50"
-        aria-hidden="true"
-      />
+      <span className="scene-caption">
+        <span className="tiny-cross">✧</span>{" "}
+        {lang === "fr"
+          ? "Une autre dimension du web."
+          : "Another dimension of the web."}
+      </span>
     </div>
   );
 }
-
-// ─── Dock items ───────────────────────────────────────────────────────────────
-
-const DOCK_ITEMS = [
-  { id: "portfolio", label: "Portfolio", icon: "WEB", bg: "bg-cyan-700",  text: "text-white",      url: PORTFOLIO_URL,                    title: "Portfolio Browser", external: false },
-  { id: "cv",        label: "CV",        icon: "PDF", bg: "bg-rose-600",  text: "text-white",      url: "/CV.pdf",                        title: "CV",                external: false },
-  { id: "github",    label: "GitHub",    icon: "GH",  bg: "bg-slate-800", text: "text-white",      url: "https://github.com/sanrandry",   title: "GitHub",            external: true  },
-  { id: "mail",      label: "Mail",      icon: "@",   bg: "bg-amber-300", text: "text-slate-950",  url: "mailto:sinrandry@gmail.com",     title: "Mail",              external: true  },
-] as const;
-
-// ─── Main component ───────────────────────────────────────────────────────────
+const projectTech = [
+  ["Vue.js", ".NET 6", "gRPC", "PostgreSQL"],
+  ["Next.js", "Nest.js", "Prisma", "MongoDB"],
+  ["Vue.js", "Quasar", ".NET 6", "Blazor"],
+  ["React", ".NET 5", "Keycloak"],
+  ["Vue.js", "TypeGraphQL", "RabbitMQ"],
+  ["TypeGraphQL", "Prisma", "PostgreSQL"],
+  ["React Native", "Nest.js", "MySQL"],
+  ["Next.js", "Bootstrap", "Redux"],
+];
 
 export default function WebOSPortfolio() {
-  const [windows, setWindows] = useState<Win[]>([
-    { id: "cv",        title: "CV",               url: "/CV.pdf",    address: "/CV.pdf",    open: true, minimized: false, maximized: false, x: 400, y: 8,  z: 1, key: 0, w: "calc(100% - 408px)", h: "calc(100% - 16px)" },
-    { id: "portfolio", title: "Portfolio Browser", url: PORTFOLIO_URL, address: PORTFOLIO_URL, open: true, minimized: false, maximized: false, x: 8,   y: 8,  z: 2, key: 0, w: "68%",                  h: "calc(100% - 16px)" },
-  ]);
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const [dark, setDark]           = useState(false);
-  const [mouseX, setMouseX]       = useState<number | null>(null);
-  const dockRefs                  = useRef<Map<string, HTMLElement>>(new Map());
-
-  // Dark mode init
-  useEffect(() => {
-    const saved = localStorage.getItem("os-theme");
-    if (saved) {
-      setDark(saved === "dark");
-    } else {
-      setDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    }
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("os-theme")) setDark(e.matches);
-    };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  // Keyboard: Escape closes menu
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
-    document.addEventListener("keydown", h);
-    return () => document.removeEventListener("keydown", h);
-  }, []);
-
-  function toggleDark() {
-    setDark((d) => {
-      const next = !d;
-      localStorage.setItem("os-theme", next ? "dark" : "light");
-      return next;
-    });
-  }
-
-  // ── Window management ──────────────────────────────────────────────────────
-
-  function cascadePos(wins: Win[]): { x: number; y: number } {
-    const open = wins.filter((w) => w.open && !w.minimized && !w.maximized);
-    if (open.length === 0) return { x: 20, y: 20 };
-    const top = open.reduce((a, b) => (a.z > b.z ? a : b));
-    const STEP = 32;
-    const MAX_X = 280;
-    const MAX_Y = 220;
-    return {
-      x: top.x + STEP > MAX_X ? 20 : top.x + STEP,
-      y: top.y + STEP > MAX_Y ? 20 : top.y + STEP,
-    };
-  }
-
-  function openWindow(id: string, url: string, title: string) {
-    if (url.startsWith("mailto:")) { window.location.href = url; return; }
-    if (url.startsWith("https://github")) { window.open(url, "_blank", "noreferrer"); return; }
-    setWindows((prev) => {
-      const existing = prev.find((w) => w.id === id);
-      if (existing) {
-        return prev.map((w) => w.id === id ? { ...w, open: true, minimized: false, z: nextZ() } : w);
-      }
-      const { x, y } = cascadePos(prev);
-      return [
-        ...prev,
-        { id, title, url, address: url, open: true, minimized: false, maximized: false, x, y, z: nextZ(), key: 0 },
-      ];
-    });
-  }
-
-  function closeWindow(id: string) {
-    setWindows((prev) => prev.filter((w) => w.id !== id));
-  }
-
-  function minimizeWindow(id: string) {
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, minimized: true, maximized: false } : w));
-  }
-
-  function maximizeWindow(id: string) {
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, maximized: !w.maximized, z: nextZ() } : w));
-  }
-
-  function focusWindow(id: string) {
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, z: nextZ() } : w));
-  }
-
-  function moveWindow(id: string, x: number, y: number) {
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, x: Math.max(0, x), y: Math.max(0, y) } : w));
-  }
-
-  function navigateWindow(id: string, address: string) {
-    const url = normalizeUrl(address);
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, url, address: url, key: w.key + 1 } : w));
-  }
-
-  function reloadWindow(id: string) {
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, key: w.key + 1 } : w));
-  }
-
-  // ── Dock magnification ─────────────────────────────────────────────────────
-
-  function dockRef(key: string) {
-    return (el: HTMLElement | null) => {
-      if (el) dockRefs.current.set(key, el);
-      else dockRefs.current.delete(key);
-    };
-  }
-
-  function dockScale(key: string): number {
-    if (mouseX === null) return 1;
-    const el = dockRefs.current.get(key);
-    if (!el) return 1;
-    const r = el.getBoundingClientRect();
-    const center = r.left + r.width / 2;
-    const dist = Math.abs(mouseX - center);
-    const maxDist = 72;
-    if (dist >= maxDist) return 1;
-    return 1 + 0.25 * Math.cos((dist / maxDist) * (Math.PI / 2));
-  }
-
-  // ── Computed ───────────────────────────────────────────────────────────────
-
-  const activeWindows = windows.filter((w) => w.open && !w.minimized);
-  const topZ = activeWindows.length > 0 ? Math.max(...activeWindows.map((w) => w.z)) : 0;
-  const allClosed = windows.every((w) => !w.open || w.minimized);
-
-  // ── Colors ─────────────────────────────────────────────────────────────────
-
-  const c = {
-    outer:     dark ? "bg-slate-950" : "bg-[#eaf4fb]",
-    bezel:     dark ? "bg-slate-900 ring-slate-700/40 shadow-slate-900/60" : "bg-slate-950 ring-slate-900/40 shadow-slate-900/40",
-    notch:     dark ? "bg-slate-900" : "bg-slate-950",
-    screen:    dark ? "bg-slate-800" : "bg-[#eaf4fb]",
-    menubar:   dark ? "border-slate-700/60 bg-slate-900/85 text-slate-200 shadow-slate-900/20" : "border-slate-900/10 bg-white/70 text-slate-900 shadow-sky-900/10",
-    menuHover: dark ? "hover:bg-white/10" : "hover:bg-slate-900/8",
-    dropdown:  dark ? "border-slate-700 bg-slate-800/96 shadow-slate-900/60" : "border-slate-900/10 bg-white/90 shadow-sky-900/20",
-    menuItem:  dark ? "text-slate-200 hover:bg-white/8" : "text-slate-800 hover:bg-cyan-50",
-    divider:   dark ? "bg-slate-700" : "bg-slate-200",
-    clockText: dark ? "text-slate-400" : "text-slate-600",
-    dock:      dark ? "border-white/8 bg-slate-800/60 shadow-slate-900/40" : "border-white/70 bg-white/48 shadow-sky-900/20",
-    dockMenu:  dark ? "bg-slate-700 text-cyan-400" : "bg-white text-cyan-700",
-    emptyText: dark ? "text-cyan-400" : "text-cyan-700",
+  const [lang, setLang] = useState<Lang>("fr");
+  const [page, setPage] = useState<Page>("home");
+  const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [windowState, setWindowState] = useState<
+    "open" | "minimized" | "closed"
+  >("open");
+  const [maximized, setMaximized] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [motion, setMotion] = useState(true);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [selected, setSelected] = useState(0);
+  const [command, setCommand] = useState("");
+  const [history, setHistory] = useState<{ input: string; output: string }[]>(
+    [],
+  );
+  const [copyStatus, setCopyStatus] = useState<"" | "copied" | "failed">("");
+  const dialog = useRef<HTMLDialogElement>(null);
+  const menu = useRef<HTMLDetailsElement>(null);
+  const content = useRef<HTMLDivElement>(null);
+  const homeDock = useRef<HTMLButtonElement>(null);
+  const mobileHome = useRef<HTMLButtonElement>(null);
+  const mobileOrigin = useRef<HTMLElement | null>(null);
+  const searchDialog = useRef<HTMLDialogElement>(null);
+  const settingsDialog = useRef<HTMLDialogElement>(null);
+  const drag = useRef<{
+    x: number;
+    y: number;
+    startX: number;
+    startY: number;
+    limitX: number;
+    limitY: number;
+  } | null>(null);
+  const t = translations[lang];
+  const say = (fr: string, en: string) => (lang === "fr" ? fr : en);
+  const names: Record<Page, string> = {
+    home: say("Bienvenue", "Welcome"),
+    projects: say("Projets", "Projects"),
+    experience: say("Parcours", "Experience"),
+    about: say("À propos", "About"),
+    contact: "Contact",
+    terminal: "Terminal",
   };
+  const projects = [...t.work.projects, ...t.projects.items];
+  const mobileApps: Page[] = [
+    "home",
+    "projects",
+    "experience",
+    "about",
+    "terminal",
+    "contact",
+  ];
+  const appName = (item: Page) => (item === "home" ? "Portfolio" : names[item]);
+  const matchedApps = mobileApps.filter((item) =>
+    normalizeSearch(appName(item)).includes(normalizeSearch(query)),
+  );
+  const matchedProjects = projects
+    .map((project, index) => ({ ...project, index }))
+    .filter((project) =>
+      normalizeSearch(project.title).includes(normalizeSearch(query)),
+    );
 
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+  useEffect(() => {
+    const closeMenu = (event: Event) => {
+      if (!menu.current?.open) return;
+      if (event instanceof KeyboardEvent) {
+        if (event.key !== "Escape") return;
+        menu.current.querySelector("summary")?.focus();
+      } else if (menu.current.contains(event.target as Node)) return;
+      menu.current.open = false;
+    };
+    document.addEventListener("pointerdown", closeMenu);
+    document.addEventListener("keydown", closeMenu);
+    return () => {
+      document.removeEventListener("pointerdown", closeMenu);
+      document.removeEventListener("keydown", closeMenu);
+    };
+  }, []);
+  function navigate(next: Page) {
+    if (!mobileAppOpen)
+      mobileOrigin.current = document.activeElement as HTMLElement;
+    setPage(next);
+    setWindowState("open");
+    setMobileAppOpen(true);
+    menu.current?.removeAttribute("open");
+    requestAnimationFrame(() => {
+      content.current?.scrollTo(0, 0);
+      content.current
+        ?.querySelector<HTMLElement>(".view-heading")
+        ?.focus({ preventScroll: true });
+    });
+  }
+  function returnToMobileHome() {
+    setMobileAppOpen(false);
+    requestAnimationFrame(() => {
+      const origin = mobileOrigin.current;
+      if (origin?.isConnected && origin.getClientRects().length)
+        origin.focus({ preventScroll: true });
+      else mobileHome.current?.focus({ preventScroll: true });
+    });
+  }
+  function openSearch() {
+    setQuery("");
+    searchDialog.current?.showModal();
+  }
+  function hideWindow(next: "closed" | "minimized") {
+    setWindowState(next);
+    setMobileAppOpen(false);
+    homeDock.current?.focus();
+  }
+  function startDrag(event: PointerEvent<HTMLElement>) {
+    if (
+      maximized ||
+      event.button !== 0 ||
+      window.matchMedia(
+        "(max-width: 767px), (max-width: 1024px) and (max-height: 500px) and (pointer: coarse)",
+      ).matches ||
+      (event.target as HTMLElement).closest("button,a,summary")
+    )
+      return;
+    const frame = event.currentTarget.parentElement!;
+    const bounds = frame.parentElement!.getBoundingClientRect();
+    const box = frame.getBoundingClientRect();
+    drag.current = {
+      x: event.clientX,
+      y: event.clientY,
+      startX: position.x,
+      startY: position.y,
+      limitX: Math.max(0, (bounds.width - box.width) / 2),
+      limitY: Math.max(0, (bounds.height - box.height) / 2),
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function moveWindow(event: PointerEvent<HTMLElement>) {
+    const d = drag.current;
+    if (d)
+      setPosition({
+        x: Math.max(
+          -d.limitX,
+          Math.min(d.limitX, d.startX + event.clientX - d.x),
+        ),
+        y: Math.max(
+          -d.limitY,
+          Math.min(d.limitY, d.startY + event.clientY - d.y),
+        ),
+      });
+  }
+  function showProject(index: number) {
+    setSelected(index);
+    dialog.current?.showModal();
+  }
+  async function copyEmail() {
+    try {
+      await navigator.clipboard.writeText("sinrandry@gmail.com");
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+  }
+  function projectCard(index: number) {
+    const project = projects[index];
+    return (
+      <button className="project-card" onClick={() => showProject(index)}>
+        <span
+          className={`project-visual visual-${index % 2}`}
+          aria-hidden="true"
+        >
+          {index === 0 ? (
+            <>
+              <span className="planet" />
+              <span className="planet-orbit" />
+              <span className="project-art-label">
+                EARTH INTELLIGENCE <span>↗</span>
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="mini-dashboard">
+                <span className="mini-sidebar" />
+                <span className="mini-chart">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <span className="mini-row" />
+              </span>
+              <span className="project-art-label">
+                VOAKAJY <span>✳</span>
+              </span>
+            </>
+          )}
+        </span>
+        <span className="project-card-info">
+          <span>
+            <strong>{project.title}</strong>
+            <small>
+              {index === 0
+                ? say(
+                    "Observation de la Terre · Microservices",
+                    "Earth observation · Microservices",
+                  )
+                : say(
+                    "Gestion RH · Plateforme métier",
+                    "HR management · Business platform",
+                  )}
+            </small>
+          </span>
+          <Icon name="external" size={17} />
+        </span>
+      </button>
+    );
+  }
+  function mobileIcon(item: IconName | "cv" | "settings") {
+    return (
+      <span className={`ios-app-icon ios-icon-${item}`} aria-hidden="true">
+        {item === "home" ? (
+          <span className="ios-compass" />
+        ) : item === "about" ? (
+          <Image src="/images/avatar.webp" alt="" width={64} height={64} />
+        ) : item === "cv" ? (
+          <span className="ios-pdf">
+            PDF
+            <i />
+            <i />
+          </span>
+        ) : item === "settings" ? (
+          <span className="ios-gear">⚙</span>
+        ) : (
+          <Icon name={item} size={30} />
+        )}
+      </span>
+    );
+  }
   return (
-    <main
-      className={`relative h-screen w-full overflow-hidden p-3 sm:p-5 transition-colors duration-300 ${c.outer}`}
-      role="application"
-      aria-label="Santatraina OS"
+    <div
+      className={`desktop ${dark ? "theme-dark" : ""} ${motion ? "" : "motion-off"} ${mobileAppOpen ? "mobile-app-open" : ""}`}
+      lang={lang}
     >
-      {/* Outer background */}
-      {dark
-        ? <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.05),transparent_40%)]" />
-        : <div className="pointer-events-none absolute inset-0 laptop-scene-bg" />
-      }
-
-      {/* Mac bezel */}
-      <div className={`relative h-full overflow-hidden rounded-[28px] p-[10px] shadow-2xl ring-1 ${c.bezel}`}>
-
-        {/* Notch */}
-        <div className={`absolute left-1/2 top-[10px] z-[60] h-4 w-32 -translate-x-1/2 rounded-b-2xl sm:w-44 ${c.notch}`} aria-hidden="true" />
-
-        {/* Screen */}
-        <div className={`relative h-full overflow-hidden rounded-[18px] ${c.screen}`}>
-
-          {/* Wallpaper */}
-          {dark
-            ? <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(14,165,233,0.12),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(45,212,191,0.08),transparent_35%),linear-gradient(160deg,#0f172a,#1e293b)]" />
-            : <>
-                <div className="pointer-events-none absolute inset-0 os-wallpaper" />
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_10%,rgba(14,165,233,0.2),transparent_30%),radial-gradient(circle_at_78%_18%,rgba(45,212,191,0.16),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.38),rgba(219,234,254,0.62))]" />
-              </>
-          }
-
-          {/* ── Menubar ── */}
-          <header
-            className={`absolute left-0 right-0 top-0 z-50 flex h-7 items-center justify-between rounded-t-[18px] border-b px-2 text-[13px] shadow-lg backdrop-blur-2xl ${c.menubar}`}
+      <a
+        className="desktop-skip"
+        href="#portfolio-content"
+        onClick={() => {
+          setWindowState("open");
+          setMobileAppOpen(true);
+        }}
+      >
+        {say("Aller au contenu", "Skip to content")}
+      </a>
+      <div className="wallpaper" aria-hidden="true">
+        <div className="wallpaper-ridge ridge-one" />
+        <div className="wallpaper-ridge ridge-two" />
+        <div className="wallpaper-ridge ridge-three" />
+        <div className="wallpaper-grain" />
+      </div>
+      <div className="ios-statusbar">
+        <Clock lang={lang} compact />
+        <span className="ios-island" aria-hidden="true">
+          <i />
+        </span>
+        <span className="ios-status-icons" aria-hidden="true">
+          <svg width="17" height="14" viewBox="0 0 17 14" fill="currentColor">
+            <rect x="0" y="9" width="3" height="5" rx=".7" />
+            <rect x="4.5" y="6" width="3" height="8" rx=".7" />
+            <rect x="9" y="3" width="3" height="11" rx=".7" />
+            <rect x="13.5" y="0" width="3" height="14" rx=".7" />
+          </svg>
+          <svg
+            width="17"
+            height="14"
+            viewBox="0 0 20 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
           >
-            <nav className="flex min-w-0 items-center gap-0.5" aria-label="Menu système">
-              <button
-                type="button"
-                onClick={() => setMenuOpen((o) => !o)}
-                className={`grid h-6 w-7 shrink-0 place-items-center rounded-md text-[13px] font-black text-cyan-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${c.menuHover}`}
-                aria-label="Ouvrir le menu Santatraina OS"
-                aria-expanded={menuOpen}
-                aria-haspopup="menu"
-              >
-                S
-              </button>
-              {["Santatraina OS", "File", "Edit", "View", "Window", "Help"].map((item, i) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={`hidden h-6 rounded-md px-2 text-[13px] transition sm:block ${i === 0 ? "font-bold" : "font-medium"} ${c.menuHover}`}
-                >
-                  {item}
-                </button>
-              ))}
-            </nav>
-
-            {/* ── Dropdown ── */}
-            {menuOpen && (
-              <div
-                role="menu"
-                aria-label="Menu Santatraina OS"
-                className={`absolute left-2 top-[calc(100%+6px)] w-72 overflow-hidden rounded-xl border p-1.5 shadow-2xl backdrop-blur-2xl ${c.dropdown}`}
-              >
-                <div className="flex items-center gap-3 px-3 py-2">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-cyan-500 text-base font-black text-white" aria-hidden="true">S</span>
-                  <div>
-                    <p className={`text-sm font-bold ${dark ? "text-slate-100" : "text-slate-950"}`}>Santatraina OS</p>
-                    <p className="text-xs text-slate-500">Portfolio desktop</p>
-                  </div>
-                </div>
-                <div className={`my-1 h-px ${c.divider}`} />
-                {[
-                  { label: "Open Portfolio",      hint: "WEB",  action: () => { openWindow("portfolio", PORTFOLIO_URL, "Portfolio Browser"); setMenuOpen(false); } },
-                  { label: "New browser window",  hint: "⌘N",  action: () => { openWindow(`win-${Date.now()}`, PORTFOLIO_URL, "Browser"); setMenuOpen(false); } },
-                  { label: dark ? "Light mode" : "Dark mode", hint: dark ? "☀" : "🌙", action: () => { toggleDark(); setMenuOpen(false); } },
-                ].map(({ label, hint, action }) => (
-                  <button key={label} type="button" role="menuitem" onClick={action}
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${c.menuItem}`}>
-                    <span>{label}</span>
-                    <span className={`text-xs ${dark ? "text-slate-500" : "text-slate-400"}`}>{hint}</span>
-                  </button>
-                ))}
-                <div className={`my-1 h-px ${c.divider}`} />
-                <a href="/CV.pdf" role="menuitem" onClick={() => setMenuOpen(false)}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${c.menuItem}`}>
-                  <span>Open CV</span>
-                  <span className={`text-xs ${dark ? "text-slate-500" : "text-slate-400"}`}>PDF</span>
-                </a>
-                <a href="mailto:sinrandry@gmail.com" role="menuitem" onClick={() => setMenuOpen(false)}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${c.menuItem}`}>
-                  <span>Contact</span>
-                  <span className={`text-xs ${dark ? "text-slate-500" : "text-slate-400"}`}>@</span>
-                </a>
-              </div>
-            )}
-
-            {/* Right side */}
-            <div className={`flex items-center gap-2 text-xs ${c.clockText}`}>
-              <button
-                type="button"
-                onClick={toggleDark}
-                className={`hidden h-5 w-5 items-center justify-center rounded transition sm:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${c.menuHover}`}
-                aria-label={dark ? "Passer en mode clair" : "Passer en mode sombre"}
-                aria-pressed={dark}
-              >
-                {dark ? "☀" : "🌙"}
-              </button>
-              <span className="hidden sm:inline" aria-hidden="true">Wi-Fi</span>
-              <span className="hidden sm:inline" aria-hidden="true">100%</span>
-              <span className="hidden font-mono opacity-50 sm:inline" aria-label={`Version ${process.env.NEXT_PUBLIC_VERSION}`}>v{process.env.NEXT_PUBLIC_VERSION}</span>
-              <Clock />
-            </div>
-          </header>
-
-          {/* ── Desktop area ── */}
-          <section
-            className="absolute inset-x-0 overflow-hidden"
-            style={{ top: 28, bottom: 88 }}
-            aria-label="Bureau"
-            onClick={() => menuOpen && setMenuOpen(false)}
-          >
-            {activeWindows.map((win) => (
-              <BrowserWindow
-                key={win.id}
-                win={win}
-                dark={dark}
-                active={win.z === topZ}
-                onClose={closeWindow}
-                onMinimize={minimizeWindow}
-                onMaximize={maximizeWindow}
-                onFocus={focusWindow}
-                onMove={moveWindow}
-                onNavigate={navigateWindow}
-                onReload={reloadWindow}
-              />
-            ))}
-
-            {allClosed && (
-              <div className="grid h-full place-items-center">
-                <div className="text-center">
-                  <p className={`font-mono text-xs uppercase tracking-[0.24em] ${c.emptyText}`}>
-                    Toutes les fenêtres sont fermées
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => openWindow("portfolio", PORTFOLIO_URL, "Portfolio Browser")}
-                    className="mt-4 rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-black text-white transition hover:bg-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-                  >
-                    Ouvrir le Portfolio
-                  </button>
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* ── Dock ── */}
-          <footer
-            className={`absolute bottom-3 left-1/2 z-50 flex -translate-x-1/2 items-end gap-1.5 rounded-[24px] border px-2 py-1.5 shadow-2xl backdrop-blur-2xl ${c.dock}`}
-            aria-label="Dock"
-            onMouseMove={(e) => setMouseX(e.clientX)}
-            onMouseLeave={() => setMouseX(null)}
-          >
-            {/* S / Menu */}
+            <path d="M2 4a13 13 0 0 1 16 0M5 8a8 8 0 0 1 10 0m-7 4a3 3 0 0 1 4 0" />
+            <circle cx="10" cy="15" r=".7" fill="currentColor" stroke="none" />
+          </svg>
+          <span className="ios-battery">
+            <i />
+          </span>
+        </span>
+      </div>
+      <main
+        className="ios-home"
+        aria-label={say("Écran d’accueil iPhone", "iPhone home screen")}
+      >
+        <h1 className="sr-only">
+          {say(
+            "Le portfolio de Santatraina Randry",
+            "Santatraina Randry’s portfolio",
+          )}
+        </h1>
+        <div className="ios-home-content">
+          <div className="ios-widgets">
             <button
-              type="button"
-              ref={dockRef("menu")}
-              onClick={() => setMenuOpen((o) => !o)}
-              className={`group relative grid h-14 w-14 place-items-center rounded-[18px] text-base font-black shadow-lg ring-1 ring-slate-900/10 transition-transform duration-100 ${c.dockMenu}`}
-              style={{ transform: `scale(${dockScale("menu")})`, transformOrigin: "bottom center" }}
-              aria-label="Menu Santatraina OS"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
+              className="ios-profile-widget"
+              onClick={() => navigate("about")}
             >
-              S
-              <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-950/90 px-2 py-1 text-[11px] text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100" aria-hidden="true">
-                Menu
+              <span className="ios-widget-top">
+                <Image
+                  src="/images/avatar.webp"
+                  alt=""
+                  width={38}
+                  height={38}
+                />
+                <span>↗</span>
+              </span>
+              <strong>
+                Santatraina
+                <br />
+                Randry<span>.</span>
+              </strong>
+              <small>
+                {say("Développeur fullstack", "Fullstack developer")}
+              </small>
+              <span className="ios-widget-availability">
+                <i />
+                {say("Disponible", "Available")}
               </span>
             </button>
-
-            <div className="mx-0.5 mb-2 h-9 w-px bg-slate-900/15" aria-hidden="true" />
-
-            {DOCK_ITEMS.map((item) => {
-              const win = windows.find((w) => w.id === item.id);
-              const isOpen = win?.open && !win?.minimized;
-              const isMin  = win?.minimized;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  ref={dockRef(item.id)}
-                  onClick={() => openWindow(item.id, item.url, item.title)}
-                  className={`group relative grid h-14 w-14 place-items-center rounded-[18px] ${item.bg} ${item.text} text-xs font-black shadow-lg transition-transform duration-100`}
-                  style={{ transform: `scale(${dockScale(item.id)})`, transformOrigin: "bottom center" }}
-                  aria-label={item.label}
-                >
-                  <span aria-hidden="true">{item.icon}</span>
-                  {isOpen && <span className="absolute -bottom-1 h-1.5 w-1.5 rounded-full bg-white/60" aria-hidden="true" />}
-                  {isMin  && <span className="absolute -bottom-1 h-1.5 w-6 rounded-full bg-amber-200"  aria-hidden="true" />}
-                  <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-950/90 px-2 py-1 text-[11px] text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100" aria-hidden="true">
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-          </footer>
-
+            <button
+              className="ios-experience-widget"
+              onClick={() => navigate("experience")}
+            >
+              <span className="ios-widget-top">
+                <Icon name="experience" size={19} />
+                <span>{say("LE PARCOURS", "THE JOURNEY")}</span>
+              </span>
+              <strong>{t.stats[0].value.split(" ")[0]}</strong>
+              <span>{say("ans à donner vie", "years bringing")}</span>
+              <span>{say("à vos idées.", "your ideas to life.")}</span>
+              <small>
+                {say("De l’idée au produit", "From idea to product")}{" "}
+                <span>↗</span>
+              </small>
+            </button>
+          </div>
+          <nav
+            className="ios-app-grid"
+            aria-label={say("Applications", "Apps")}
+          >
+            {mobileApps.map((item) => (
+              <button
+                key={item}
+                ref={item === "home" ? mobileHome : undefined}
+                onClick={() => navigate(item)}
+                className={`ios-launch-app ios-launch-${item}`}
+              >
+                {mobileIcon(item)}
+                <span>{appName(item)}</span>
+              </button>
+            ))}
+            <a
+              className="ios-launch-app"
+              href="/CV.pdf"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {mobileIcon("cv")}
+              <span>{say("Mon CV", "Resume")}</span>
+            </a>
+            <button
+              className="ios-launch-app"
+              onClick={() => settingsDialog.current?.showModal()}
+            >
+              {mobileIcon("settings")}
+              <span>{say("Réglages", "Settings")}</span>
+            </button>
+          </nav>
+          <button
+            className="ios-project-widget"
+            onClick={() => navigate("projects")}
+          >
+            <span>
+              <small>
+                {say("LE CODE, EN CONCRET", "CODE, IN THE REAL WORLD")}
+              </small>
+              <strong>
+                {say("8 projets à explorer.", "8 projects to explore.")}
+              </strong>
+              <span>
+                {say("De la Terre au quotidien", "From Earth to everyday life")}{" "}
+                <span>↗</span>
+              </span>
+            </span>
+            <span className="ios-widget-art" aria-hidden="true">
+              <span className="planet" />
+              <span className="planet-orbit" />
+            </span>
+          </button>
+          <p className="ios-home-caption">
+            {say(
+              "Un peu de moi. Au bout des doigts.",
+              "A little about me. At your fingertips.",
+            )}
+          </p>
         </div>
+        <div className="ios-launcher-bottom">
+          <button className="ios-search-trigger" onClick={openSearch}>
+            <span aria-hidden="true">⌕</span>
+            {say("Rechercher", "Search")}
+          </button>
+          <nav
+            className="ios-dock"
+            aria-label={say("Dock iPhone", "iPhone dock")}
+          >
+            <button onClick={() => navigate("home")} aria-label="Portfolio">
+              {mobileIcon("home")}
+            </button>
+            <button onClick={() => navigate("contact")} aria-label="Contact">
+              {mobileIcon("contact")}
+            </button>
+            <a
+              href="https://github.com/sanrandry"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+            >
+              {mobileIcon("github")}
+            </a>
+            <a
+              href="https://www.linkedin.com/in/randry-santatraina-sitraka-131415168/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+            >
+              {mobileIcon("linkedin")}
+            </a>
+          </nav>
+          <span className="ios-launcher-indicator" aria-hidden="true" />
+        </div>
+      </main>
+      <header className="menubar">
+        <details ref={menu} className="system-menu">
+          <summary aria-label={say("Menu du bureau", "Desktop menu")}>
+            <span className="brand-mark">
+              r<span>.</span>
+            </span>
+          </summary>
+          <div className="system-dropdown">
+            <strong>
+              Randry OS <small>Portfolio · 2026</small>
+            </strong>
+            <button onClick={() => navigate("about")}>
+              {say("À propos de ce portfolio", "About this portfolio")}
+            </button>
+            <button
+              onClick={() => {
+                setPosition({ x: 0, y: 0 });
+                setMaximized(false);
+                navigate("home");
+              }}
+            >
+              {say("Recentrer la fenêtre", "Center window")}
+            </button>
+            <button
+              onClick={() => {
+                setMotion(!motion);
+                menu.current?.removeAttribute("open");
+              }}
+            >
+              {motion
+                ? say("Désactiver les animations", "Disable animations")
+                : say("Activer les animations", "Enable animations")}
+            </button>
+            <a href="/portfolio/">
+              {say("Version classique", "Classic portfolio")}{" "}
+              <Icon name="external" size={14} />
+            </a>
+          </div>
+        </details>
+        <button className="menubar-name" onClick={() => navigate("home")}>
+          Randry<span> Portfolio</span>
+        </button>
+        <nav
+          className="menubar-links"
+          aria-label={say("Accès rapide", "Quick navigation")}
+        >
+          <button onClick={() => navigate("projects")}>{names.projects}</button>
+          <button onClick={() => navigate("contact")}>{names.contact}</button>
+        </nav>
+        <div className="menubar-right">
+          <span className="desktop-location">
+            <Icon name="globe" size={13} /> Madagascar
+          </span>
+          <button
+            className="theme-switch"
+            onClick={() => setDark(!dark)}
+            aria-label={
+              dark
+                ? say("Activer le thème clair", "Switch to light theme")
+                : say("Activer le thème sombre", "Switch to dark theme")
+            }
+          >
+            <Icon name={dark ? "sun" : "moon"} size={15} />
+          </button>
+          <button
+            className="language-switch"
+            onClick={() => setLang(lang === "fr" ? "en" : "fr")}
+            aria-label={
+              lang === "fr"
+                ? "FR — Switch to English"
+                : "EN — Passer en français"
+            }
+          >
+            {lang.toUpperCase()}
+          </button>
+          <Clock lang={lang} />
+        </div>
+      </header>
+      <div className="desktop-shortcuts">
+        <button onClick={() => navigate("projects")}>
+          <span className="desktop-folder">
+            <Icon name="projects" size={36} />
+          </span>
+          {say("Mes projets", "My projects")}
+        </button>
+        <a href="/CV.pdf" target="_blank" rel="noreferrer">
+          <span className="desktop-document">
+            <span>PDF</span>
+            <i />
+            <i />
+            <i />
+          </span>
+          CV — Randry
+        </a>
       </div>
-    </main>
+      <div className="window-stage">
+        {windowState !== "open" && (
+          <div className="desktop-empty">
+            <span className="empty-monogram">r.</span>
+            <h1>{say("Faites comme chez vous.", "Make yourself at home.")}</h1>
+            <button className="primary-button" onClick={() => navigate("home")}>
+              {say("Ouvrir le portfolio", "Open portfolio")}
+              <Icon name="arrow" size={17} />
+            </button>
+          </div>
+        )}
+        <main
+          className={`portfolio-window ${maximized ? "is-maximized" : ""}`}
+          hidden={windowState !== "open"}
+          style={
+            {
+              "--window-x": `${position.x}px`,
+              "--window-y": `${position.y}px`,
+            } as CSSProperties
+          }
+          aria-label="Portfolio"
+        >
+          <header
+            className="window-toolbar"
+            onPointerDown={startDrag}
+            onPointerMove={moveWindow}
+            onPointerUp={() => {
+              drag.current = null;
+            }}
+            onPointerCancel={() => {
+              drag.current = null;
+            }}
+            onLostPointerCapture={() => {
+              drag.current = null;
+            }}
+            onDoubleClick={(event) => {
+              if (
+                !window.matchMedia(
+                  "(max-width: 767px), (max-width: 1024px) and (max-height: 500px) and (pointer: coarse)",
+                ).matches &&
+                !(event.target as HTMLElement).closest("button,a")
+              ) {
+                setMaximized(!maximized);
+                setPosition({ x: 0, y: 0 });
+              }
+            }}
+          >
+            <button className="ios-back" onClick={returnToMobileHome}>
+              <span aria-hidden="true">‹</span>
+              {say("Accueil", "Home")}
+            </button>
+            <strong className="ios-app-title">{appName(page)}</strong>
+            <button
+              className="ios-app-settings"
+              onClick={() => settingsDialog.current?.showModal()}
+              aria-label={say("Réglages", "Settings")}
+            >
+              <span aria-hidden="true">•••</span>
+            </button>
+            <div className="traffic-lights">
+              <button
+                className="traffic-close"
+                onClick={() => hideWindow("closed")}
+                aria-label={say("Fermer la fenêtre", "Close window")}
+              >
+                <span>×</span>
+              </button>
+              <button
+                className="traffic-minimize"
+                onClick={() => hideWindow("minimized")}
+                aria-label={say("Réduire la fenêtre", "Minimize window")}
+              >
+                <span>−</span>
+              </button>
+              <button
+                className="traffic-maximize"
+                onClick={() => {
+                  setMaximized(!maximized);
+                  setPosition({ x: 0, y: 0 });
+                }}
+                aria-label={
+                  maximized
+                    ? say("Restaurer la fenêtre", "Restore window")
+                    : say("Agrandir la fenêtre", "Maximize window")
+                }
+              >
+                <span>↗</span>
+              </button>
+            </div>
+            <span className="window-breadcrumb">
+              <Icon name="projects" size={16} />
+              <span>Portfolio</span>
+              <span className="breadcrumb-divider">/</span>
+              <strong>{names[page]}</strong>
+            </span>
+            <a
+              className="toolbar-contact"
+              aria-label={say(
+                "Discutons — envoyer un e-mail",
+                "Let's talk — send an email",
+              )}
+              href="mailto:sinrandry@gmail.com"
+            >
+              <Icon name="contact" size={15} />
+              <span>{say("Discutons", "Let's talk")}</span>
+            </a>
+          </header>
+          <div className="window-body">
+            <aside className="finder-sidebar">
+              <button
+                className="sidebar-profile"
+                onClick={() => navigate("about")}
+              >
+                <span className="avatar">
+                  <Image
+                    src="/images/avatar.webp"
+                    alt=""
+                    width={34}
+                    height={34}
+                  />
+                </span>
+                <span>
+                  <strong>Santatraina Randry</strong>
+                  <small>Fullstack developer</small>
+                </span>
+              </button>
+              <span className="sidebar-heading">PORTFOLIO</span>
+              <nav aria-label={say("Navigation principale", "Main navigation")}>
+                {(
+                  [
+                    "home",
+                    "projects",
+                    "experience",
+                    "about",
+                    "contact",
+                  ] as Page[]
+                ).map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => navigate(item)}
+                    aria-current={page === item ? "page" : undefined}
+                    className={page === item ? "is-active" : ""}
+                  >
+                    <Icon name={item} size={18} />
+                    <span>{names[item]}</span>
+                    {item === "projects" && <small>08</small>}
+                  </button>
+                ))}
+              </nav>
+              <span className="sidebar-heading links-heading">
+                {say("RETROUVONS-NOUS", "ELSEWHERE")}
+              </span>
+              <div className="sidebar-socials">
+                <a
+                  href="https://github.com/sanrandry"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Icon name="github" size={17} />
+                  GitHub
+                  <Icon name="external" size={12} />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/randry-santatraina-sitraka-131415168/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Icon name="linkedin" size={17} />
+                  LinkedIn
+                  <Icon name="external" size={12} />
+                </a>
+                <a href="/CV.pdf" target="_blank" rel="noreferrer">
+                  <Icon name="download" size={17} />
+                  {say("Mon CV", "My resume")}
+                  <span>PDF</span>
+                </a>
+              </div>
+              <div className="sidebar-bottom">
+                <span className="availability">
+                  <i />
+                  {say("Disponible en freelance", "Available for freelance")}
+                </span>
+                <span>
+                  Antananarivo, Madagascar <span>↗</span>
+                </span>
+              </div>
+            </aside>
+            <div
+              className="portfolio-content"
+              ref={content}
+              id="portfolio-content"
+              tabIndex={-1}
+            >
+              <div className="view-content" key={page}>
+                {page === "home" && (
+                  <>
+                    <div className="content-eyebrow">
+                      <span>
+                        <span className="small-spark">✳</span>{" "}
+                        {say(
+                          "BIENVENUE DANS MON UNIVERS",
+                          "WELCOME TO MY CORNER OF THE WEB",
+                        )}
+                      </span>
+                      <span className="edition-label">PORTFOLIO / 2026</span>
+                    </div>
+                    <section className="hero-section">
+                      <div className="hero-copy">
+                        <span className="hello-label">
+                          {say(
+                            "Bonjour, moi c’est Santatraina.",
+                            "Hi, I'm Santatraina.",
+                          )}{" "}
+                          <span className="hello-wave">✌</span>
+                        </span>
+                        <h1 tabIndex={-1} className="view-heading">
+                          {say("Du code.", "Thoughtful code.")}
+                          <br />
+                          <span>{say("Du sens.", "Real impact.")}</span>
+                        </h1>
+                        <p>
+                          {say(
+                            "Développeur fullstack, je transforme vos idées en expériences web soignées, solides et utiles.",
+                            "Fullstack developer turning your ideas into thoughtful, reliable web experiences that make a difference.",
+                          )}
+                        </p>
+                        <div className="hero-actions">
+                          <button
+                            className="primary-button"
+                            onClick={() => navigate("projects")}
+                          >
+                            {say("Explorer mes projets", "Explore my projects")}
+                            <Icon name="arrow" size={17} />
+                          </button>
+                          <button
+                            className="text-button"
+                            onClick={() => navigate("contact")}
+                          >
+                            {say(
+                              "Parlons de votre idée",
+                              "Let's talk about your idea",
+                            )}
+                            <span>↗</span>
+                          </button>
+                        </div>
+                      </div>
+                      <Sculpture motion={motion} lang={lang} />
+                    </section>
+                    <div className="stack-strip">
+                      <span>
+                        {say("MES OUTILS AU QUOTIDIEN", "MY EVERYDAY TOOLKIT")}
+                      </span>
+                      <div>
+                        <b>
+                          Vue<span>.js</span>
+                        </b>
+                        <b>React</b>
+                        <b>
+                          Next<span>.js</span>
+                        </b>
+                        <b>
+                          Node<span>.js</span>
+                        </b>
+                        <b>TypeScript</b>
+                        <b>Docker</b>
+                      </div>
+                    </div>
+                    <section className="featured-section">
+                      <div className="section-label">
+                        <h2>
+                          {say(
+                            "Une sélection de projets",
+                            "A selection of my work",
+                          )}
+                        </h2>
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("projects")}
+                        >
+                          {say("Tout explorer", "View all work")}
+                          <Icon name="arrow" size={15} />
+                        </button>
+                      </div>
+                      <div className="featured-grid">
+                        {projectCard(0)}
+                        {projectCard(1)}
+                      </div>
+                    </section>
+                    <footer className="content-footer">
+                      <span>
+                        <i />
+                        {say(
+                          "Du premier pixel à la mise en production.",
+                          "From the first pixel to production.",
+                        )}
+                      </span>
+                      <button onClick={() => navigate("about")}>
+                        {say("Un peu plus sur moi", "A little more about me")} ↗
+                      </button>
+                    </footer>
+                  </>
+                )}
+                {page === "projects" && (
+                  <>
+                    <div className="content-eyebrow">
+                      {say(
+                        "SÉLECTION & EXPLORATIONS",
+                        "SELECTED WORK & EXPLORATIONS",
+                      )}
+                      <span>08 {say("PROJETS", "PROJECTS")}</span>
+                    </div>
+                    <h1 tabIndex={-1} className="view-heading page-title">
+                      {say("Des idées. Du concret.", "Ideas, made real.")}
+                    </h1>
+                    <p className="page-intro">
+                      {say(
+                        "De l’observation de la Terre aux outils métier. Des projets variés, une même exigence.",
+                        "From Earth observation to business tools. Different challenges, the same attention to detail.",
+                      )}
+                    </p>
+                    <div className="featured-grid">
+                      {projectCard(0)}
+                      {projectCard(1)}
+                    </div>
+                    <div className="project-list">
+                      {projects.slice(2).map((project, index) => (
+                        <button
+                          key={project.title}
+                          onClick={() => showProject(index + 2)}
+                        >
+                          <span className="project-number">0{index + 3}</span>
+                          <span>
+                            <strong>{project.title}</strong>
+                            <small>{projectTech[index + 2].join(" · ")}</small>
+                          </span>
+                          <Icon name="arrow" size={18} />
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {page === "experience" && (
+                  <>
+                    <div className="content-eyebrow">
+                      {say("LE PARCOURS", "THE JOURNEY")}
+                    </div>
+                    <h1 tabIndex={-1} className="view-heading page-title">
+                      {say(
+                        "Toujours construire. Toujours apprendre.",
+                        "Always building. Always learning.",
+                      )}
+                    </h1>
+                    <p className="page-intro">
+                      {say(
+                        "Plus de 6 ans à relier besoins métier et solutions techniques.",
+                        "Over 6 years connecting business needs with technical solutions.",
+                      )}
+                    </p>
+                    <div className="experience-list">
+                      {t.experience.jobs.map((job, index) => (
+                        <article key={job.company}>
+                          <span className="timeline-dot" />
+                          <div className="job-meta">
+                            <span>{job.period}</span>
+                            <span>0{index + 1}</span>
+                          </div>
+                          <h2>{job.company}</h2>
+                          <h3>{job.role}</h3>
+                          <ul>
+                            {job.bullets.map((bullet) => (
+                              <li key={bullet}>{bullet}</li>
+                            ))}
+                          </ul>
+                        </article>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {page === "about" && (
+                  <>
+                    <div className="content-eyebrow">
+                      {say("DERRIÈRE LE CODE", "BEHIND THE CODE")}
+                    </div>
+                    <h1 tabIndex={-1} className="view-heading page-title">
+                      {say(
+                        "Enchanté, Santatraina.",
+                        "Nice to meet you. I'm Santatraina.",
+                      )}
+                    </h1>
+                    <div className="about-grid">
+                      <div>
+                        <p className="page-intro">{t.about.p1}</p>
+                        <p>{t.about.p2}</p>
+                        <p>{t.about.p3}</p>
+                      </div>
+                      <div className="about-monogram">
+                        <span>
+                          SR<span>.</span>
+                        </span>
+                        <small>
+                          ANTANANARIVO
+                          <br />
+                          18.8792° S · 47.5079° E
+                        </small>
+                      </div>
+                    </div>
+                    <div className="stats-grid">
+                      {t.stats.map((stat) => (
+                        <div key={stat.label}>
+                          <strong>{stat.value}</strong>
+                          <span>{stat.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <h2 className="subheading">
+                      {say(
+                        "Une stack, de bout en bout.",
+                        "A stack, end to end.",
+                      )}
+                    </h2>
+                    <div className="skills-grid">
+                      {[
+                        [
+                          "Frontend",
+                          "Vue.js · Nuxt.js · React · Next.js · TypeScript",
+                        ],
+                        [
+                          "Backend",
+                          "Node.js · Nest.js · .NET · gRPC · GraphQL",
+                        ],
+                        [
+                          say("Données & livraison", "Data & delivery"),
+                          "PostgreSQL · MongoDB · Prisma · Docker",
+                        ],
+                      ].map(([title, stack]) => (
+                        <div key={title}>
+                          <Icon name="code" />
+                          <h3>{title}</h3>
+                          <p>{stack}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <a
+                      className="primary-button resume-button"
+                      href="/CV.pdf"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {say("Consulter mon CV", "View my resume")}
+                      <Icon name="download" size={17} />
+                    </a>
+                  </>
+                )}
+                {page === "contact" && (
+                  <section className="contact-view">
+                    <span className="contact-symbol">
+                      <Icon name="contact" size={44} />
+                    </span>
+                    <span className="availability">
+                      <i />
+                      {say(
+                        "DISPONIBLE POUR DE NOUVEAUX PROJETS",
+                        "OPEN TO NEW PROJECTS",
+                      )}
+                    </span>
+                    <h1 tabIndex={-1} className="view-heading page-title">
+                      {say("La suite s’écrit", "The next chapter")}
+                      <br />
+                      <span>{say("ensemble.", "starts together.")}</span>
+                    </h1>
+                    <p>{t.contact.description}</p>
+                    <a
+                      className="contact-email"
+                      href="mailto:sinrandry@gmail.com"
+                    >
+                      sinrandry@gmail.com
+                      <Icon name="arrow" />
+                    </a>
+                    <div className="contact-actions">
+                      <a
+                        className="primary-button"
+                        href="mailto:sinrandry@gmail.com"
+                      >
+                        {say("Écrivez-moi", "Get in touch")}
+                        <Icon name="external" size={16} />
+                      </a>
+                      <button className="text-button" onClick={copyEmail}>
+                        <Icon name="copy" size={15} />
+                        {say("Copier l’adresse", "Copy email")}
+                      </button>
+                    </div>
+                    <p className="copy-status" role="status">
+                      {copyStatus === "copied"
+                        ? say("Adresse copiée !", "Email copied!")
+                        : copyStatus === "failed"
+                          ? say(
+                              "Copie indisponible. Sélectionnez l’adresse ci-dessus.",
+                              "Copy unavailable. Select the email address above.",
+                            )
+                          : ""}
+                    </p>
+                    <div className="contact-socials">
+                      <a
+                        href="https://github.com/sanrandry"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        GitHub ↗
+                      </a>
+                      <a
+                        href="https://www.linkedin.com/in/randry-santatraina-sitraka-131415168/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        LinkedIn ↗
+                      </a>
+                      <a href="/CV.pdf" target="_blank" rel="noreferrer">
+                        {say("Mon CV", "My resume")} ↗
+                      </a>
+                    </div>
+                  </section>
+                )}
+                {page === "terminal" && (
+                  <>
+                    <div className="content-eyebrow">
+                      {say("POUR LES CURIEUX", "FOR THE CURIOUS")}
+                    </div>
+                    <h1 tabIndex={-1} className="view-heading page-title">
+                      Hello, terminal.
+                    </h1>
+                    <p className="page-intro">
+                      {say(
+                        "Un autre chemin pour faire connaissance. Tapez help pour commencer.",
+                        "Another way to get to know me. Type help to get started.",
+                      )}
+                    </p>
+                    <div className="terminal-panel">
+                      <div className="terminal-welcome">
+                        Randry OS —{" "}
+                        {say("terminal de découverte", "discovery terminal")}
+                        <br />
+                        <span>{terminalReply("help", lang)}</span>
+                      </div>
+                      <div
+                        className="terminal-history"
+                        role="log"
+                        aria-label={say(
+                          "Historique du terminal",
+                          "Terminal history",
+                        )}
+                      >
+                        {history.map((entry, index) => (
+                          <div key={index}>
+                            <div className="terminal-prompt">
+                              randry ~ % <span>{entry.input}</span>
+                            </div>
+                            <pre>{entry.output}</pre>
+                          </div>
+                        ))}
+                      </div>
+                      <form
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          if (!command.trim()) return;
+                          if (command.trim().toLowerCase() === "clear")
+                            setHistory([]);
+                          else
+                            setHistory((previous) => [
+                              ...previous.slice(-39),
+                              {
+                                input: command,
+                                output: terminalReply(command, lang),
+                              },
+                            ]);
+                          setCommand("");
+                        }}
+                      >
+                        <label htmlFor="terminal-command">randry ~ %</label>
+                        <input
+                          id="terminal-command"
+                          value={command}
+                          maxLength={200}
+                          onChange={(event) => setCommand(event.target.value)}
+                          autoComplete="off"
+                          autoCapitalize="off"
+                          spellCheck={false}
+                          aria-label={say("Commande", "Command")}
+                        />
+                        <button
+                          aria-label={say(
+                            "Exécuter la commande",
+                            "Run command",
+                          )}
+                        >
+                          <Icon name="arrow" size={18} />
+                        </button>
+                      </form>
+                    </div>
+                    <div className="terminal-hints">
+                      {["whoami", "stack", "projects", "contact"].map(
+                        (item) => (
+                          <button
+                            key={item}
+                            onClick={() => {
+                              setCommand(item);
+                              document
+                                .getElementById("terminal-command")
+                                ?.focus();
+                            }}
+                          >
+                            {item}
+                            <span>↵</span>
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <nav
+            className="ios-tabs"
+            aria-label={say("Navigation de l’application", "App navigation")}
+          >
+            {(["home", "projects", "experience", "contact"] as Page[]).map(
+              (item) => (
+                <button
+                  key={item}
+                  onClick={() => navigate(item)}
+                  aria-current={page === item ? "page" : undefined}
+                >
+                  <Icon name={item} size={22} />
+                  <span>{appName(item)}</span>
+                </button>
+              ),
+            )}
+          </nav>
+          <button
+            className="ios-home-control"
+            onClick={returnToMobileHome}
+            aria-label={say(
+              "Revenir à l’écran d’accueil",
+              "Return to home screen",
+            )}
+          >
+            <span />
+          </button>
+          <footer className="window-status">
+            <span>
+              <span className="status-dot" />
+              {say(
+                "Fait avec soin, à Madagascar",
+                "Made with care, in Madagascar",
+              )}
+            </span>
+            <button onClick={() => setMotion(!motion)} aria-pressed={motion}>
+              <span className={motion ? "motion-dot enabled" : "motion-dot"} />
+              {say("Effets 3D", "3D effects")} {motion ? "on" : "off"}
+            </button>
+            <span className="status-version">© 2026 · SR</span>
+          </footer>
+        </main>
+      </div>
+      <div className="dock-zone">
+        <span className="desktop-hint">
+          {say(
+            "Un petit bureau. De grandes idées.",
+            "A little desktop. Big ideas.",
+          )}
+        </span>
+        <nav
+          className="dock"
+          aria-label={say("Applications du dock", "Dock applications")}
+        >
+          {(["home", "projects", "experience", "terminal"] as Page[]).map(
+            (item) => (
+              <button
+                ref={item === "home" ? homeDock : undefined}
+                key={item}
+                className={`dock-item dock-${item} ${windowState !== "closed" && page === item ? "is-running" : ""}`}
+                onClick={() => navigate(item)}
+                aria-label={`${say("Ouvrir", "Open")} ${names[item]}`}
+              >
+                <span className="dock-tooltip">{names[item]}</span>
+                <span className="dock-icon">
+                  {item === "home" ? (
+                    <span className="finder-face">
+                      <span />
+                      <span />
+                      <i />
+                    </span>
+                  ) : (
+                    <Icon name={item} size={31} />
+                  )}
+                </span>
+              </button>
+            ),
+          )}
+          <span className="dock-divider" />
+          <a
+            className="dock-item dock-cv"
+            href="/CV.pdf"
+            target="_blank"
+            rel="noreferrer"
+            aria-label={say("Ouvrir le CV PDF", "Open PDF resume")}
+          >
+            <span className="dock-tooltip">{say("Mon CV", "My resume")}</span>
+            <span className="dock-icon">
+              <span className="pdf-sheet">
+                PDF
+                <span />
+                <span />
+              </span>
+            </span>
+          </a>
+          <button
+            className={`dock-item dock-contact ${windowState !== "closed" && page === "contact" ? "is-running" : ""}`}
+            onClick={() => navigate("contact")}
+            aria-label={say("Ouvrir Contact", "Open Contact")}
+          >
+            <span className="dock-tooltip">Contact</span>
+            <span className="dock-icon">
+              <Icon name="contact" size={33} />
+            </span>
+          </button>
+          <a
+            className="dock-item dock-github"
+            href="https://github.com/sanrandry"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub"
+          >
+            <span className="dock-tooltip">GitHub</span>
+            <span className="dock-icon">
+              <Icon name="github" size={31} />
+            </span>
+          </a>
+        </nav>
+      </div>
+      <dialog
+        className="ios-sheet ios-settings"
+        ref={settingsDialog}
+        aria-labelledby="ios-settings-title"
+      >
+        <div className="ios-sheet-handle" aria-hidden="true" />
+        <header>
+          <h2 id="ios-settings-title">{say("Réglages", "Settings")}</h2>
+          <button onClick={() => settingsDialog.current?.close()}>
+            {say("OK", "Done")}
+          </button>
+        </header>
+        <p>{say("Un bureau à votre image.", "Make yourself at home.")}</p>
+        <div className="ios-settings-group">
+          <button onClick={() => setDark(!dark)} aria-pressed={dark}>
+            <Icon name={dark ? "moon" : "sun"} />
+            <span>{say("Mode sombre", "Dark mode")}</span>
+            <span
+              className={`ios-switch ${dark ? "is-on" : ""}`}
+              aria-hidden="true"
+            />
+          </button>
+          <button onClick={() => setLang(lang === "fr" ? "en" : "fr")}>
+            <Icon name="globe" />
+            <span>{say("Langue", "Language")}</span>
+            <strong>
+              {lang === "fr" ? "Français" : "English"}{" "}
+              <span aria-hidden="true">⇄</span>
+            </strong>
+          </button>
+          <button onClick={() => setMotion(!motion)} aria-pressed={motion}>
+            <Icon name="code" />
+            <span>{say("Animations 3D", "3D animations")}</span>
+            <span
+              className={`ios-switch ${motion ? "is-on" : ""}`}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+        <p className="ios-settings-note">
+          {say(
+            "La préférence de mouvement réduit de votre appareil reste prioritaire.",
+            "Your device’s reduced-motion preference always takes priority.",
+          )}
+        </p>
+        <a className="ios-classic-link" href="/portfolio/">
+          {say("Ouvrir le portfolio classique", "Open the classic portfolio")}
+          <Icon name="external" size={17} />
+        </a>
+        <small>Randry OS · Portfolio 2026</small>
+      </dialog>
+      <dialog
+        className="ios-sheet ios-spotlight"
+        ref={searchDialog}
+        aria-label={say("Rechercher dans le portfolio", "Search the portfolio")}
+      >
+        <div className="ios-search-field">
+          <span aria-hidden="true">⌕</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            maxLength={80}
+            placeholder={say("Application, projet…", "App, project…")}
+            aria-label={say("Rechercher", "Search")}
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck={false}
+          />
+          <button
+            onClick={() => searchDialog.current?.close()}
+            aria-label={say("Fermer la recherche", "Close search")}
+          >
+            ×
+          </button>
+        </div>
+        <div className="ios-search-results">
+          <p className="ios-result-count" role="status">
+            {matchedApps.length + matchedProjects.length}{" "}
+            {say("résultat(s)", "result(s)")}
+          </p>
+          {matchedApps.length > 0 && (
+            <>
+              <h2>{say("Applications", "Apps")}</h2>
+              {matchedApps.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    searchDialog.current?.close();
+                    navigate(item);
+                  }}
+                >
+                  {mobileIcon(item)}
+                  <span>{appName(item)}</span>
+                  <span aria-hidden="true">↗</span>
+                </button>
+              ))}
+            </>
+          )}
+          {matchedProjects.length > 0 && (
+            <>
+              <h2>{say("Projets", "Projects")}</h2>
+              {matchedProjects.map((project) => (
+                <button
+                  key={project.index}
+                  onClick={() => {
+                    searchDialog.current?.close();
+                    navigate("projects");
+                    requestAnimationFrame(() => showProject(project.index));
+                  }}
+                >
+                  <span className="ios-search-project-icon">
+                    <Icon name="projects" />
+                  </span>
+                  <span>{project.title}</span>
+                  <span aria-hidden="true">↗</span>
+                </button>
+              ))}
+            </>
+          )}
+          {matchedApps.length + matchedProjects.length === 0 && (
+            <p className="ios-search-empty">
+              {say(
+                "Aucun résultat. Essayez « projets » ou « Voakajy ».",
+                "No results. Try “projects” or “Voakajy”.",
+              )}
+            </p>
+          )}
+        </div>
+      </dialog>
+      <dialog
+        ref={dialog}
+        className="project-dialog"
+        aria-labelledby="project-dialog-title"
+        onClick={(event) => {
+          if (event.target === event.currentTarget) dialog.current?.close();
+        }}
+      >
+        <div className="project-dialog-content">
+          <div className="dialog-top">
+            <span>
+              {say("NOTE DE PROJET", "PROJECT NOTE")} / 0{selected + 1}
+            </span>
+            <button
+              onClick={() => dialog.current?.close()}
+              aria-label={say(
+                "Fermer le détail du projet",
+                "Close project details",
+              )}
+            >
+              ×
+            </button>
+          </div>
+          <Icon name="projects" size={38} />
+          <h2 id="project-dialog-title">{projects[selected].title}</h2>
+          <p>{projects[selected].description}</p>
+          <div className="project-tags">
+            {projectTech[selected].map((tech) => (
+              <span key={tech}>{tech}</span>
+            ))}
+          </div>
+          <p className="project-disclaimer">
+            {say(
+              "Illustration conceptuelle. Détails techniques disponibles sur demande ; aucun lien public fourni pour ce projet.",
+              "Concept illustration. Technical details available on request; no public link provided for this project.",
+            )}
+          </p>
+          <a
+            className="primary-button"
+            href={`mailto:sinrandry@gmail.com?subject=${encodeURIComponent(projects[selected].title)}`}
+          >
+            {say("Parlons de ce projet", "Let's discuss this project")}
+            <Icon name="arrow" size={17} />
+          </a>
+        </div>
+      </dialog>
+    </div>
   );
 }

@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Randry — Portfolio macOS / iOS
 
-## Getting Started
+Portfolio bilingue FR/EN, construit avec Next.js, React et CSS natif. Aucun moteur 3D ni nouvelle dépendance : sculpture en perspective CSS, dock, fenêtre déplaçable, projets détaillés et terminal à commandes limitées.
 
-First, run the development server:
+## Développement
 
-```bash
+Node.js 22.6+ pour les tests TypeScript sans framework.
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `/` : bureau macOS sur ordinateur, accueil inspiré d’iOS sur téléphone ; français par défaut, thèmes clair/sombre.
+- Mobile : widgets, grille d’apps, dock, recherche locale insensible aux accents, réglages et apps plein écran avec retour accueil. Contenus accessibles en portrait et paysage ; aucune application native Apple requise.
+- `/portfolio/` : ancien portfolio conservé.
+- `out/` : export statique à héberger à la racine du domaine, comme dans le workflow GitHub Pages existant. `next start` ne sert pas cet export ; utiliser un serveur de fichiers statiques pour prévisualiser `out/`.
+- Aucun envoi d’e-mail côté serveur : contact par `mailto:`. Le terminal ne lance aucun code système.
+- Animations désactivables dans la barre d’état du bureau ou les réglages mobiles ; préférence `prefers-reduced-motion` respectée.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Contenu
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Traductions et parcours : `src/lib/i18n.ts`. Interface : `src/components/WebOSPortfolio.tsx`. Apparence : `src/components/desktop.css`.
 
-## Learn More
+Les visuels des projets sont des illustrations conceptuelles, pas des captures des produits. Aucun lien de démo inventé. Portrait original préservé ; avatar WebP optimisé pour le bureau. Aperçu social disponible dans `public/images/og-image.png`.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cadrage, critères d’acceptation et bilan de validation : `BMAD.md`.

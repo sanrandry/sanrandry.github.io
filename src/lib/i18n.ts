@@ -8,21 +8,21 @@ export const translations = {
       dock: "Dock",
       open: "Ouvrir",
       close: "Fermer",
-      minimize: "Reduire",
+      minimize: "Réduire",
       restore: "Restaurer",
       desktop: "Bureau",
       windows: {
         profile: "Profil",
-        experience: "Experience",
+        experience: "Expérience",
         projects: "Projets",
         terminal: "Terminal",
         contact: "Contact",
       },
-      bootLines: ["Chargement du profil", "Montage des projets", "Connexion au reseau"],
+      bootLines: ["Chargement du profil", "Montage des projets", "Connexion au réseau"],
     },
     nav: {
-      about: "A propos",
-      experience: "Experience",
+      about: "À propos",
+      experience: "Expérience",
       work: "Projets",
       contact: "Contact",
       resume: "CV",
@@ -31,54 +31,54 @@ export const translations = {
       greeting: "Bonjour, je suis",
       tagline: "Je construis des plateformes web robustes.",
       description:
-        "Developpeur Fullstack base a Antananarivo, specialise en interfaces modernes, backends scalables, microservices et livraison produit.",
+        "Développeur Fullstack basé à Antananarivo, spécialisé en interfaces modernes, backends scalables, microservices et livraison produit.",
       cta: "Explorer le bureau",
     },
     about: {
       sectionNum: "1.",
-      sectionTitle: "A propos",
-      p1: "Je suis Santatraina Sitraka RANDRY, developpeur Fullstack base a Antananarivo, Madagascar. Diplome d'un Master 2 en informatique a l'Ecole Nationale d'Informatique Madagascar, je conçois et developpe des applications web depuis plus de 6 ans.",
-      p2: "Mon parcours couvre des systemes de gestion de robots, plateformes d'observation de la Terre, CRM, applications RH et systemes de livraison, en startup comme en entreprise etablie.",
-      p3: "Je suis disponible en freelance et j'interviens sur des architectures frontend modernes, des backends scalables, des microservices et des environnements Dockerises.",
-      techTitle: "Stack recente",
+      sectionTitle: "À propos",
+      p1: "Je suis Santatraina Sitraka RANDRY, développeur Fullstack basé à Antananarivo, Madagascar. Diplômé d'un Master 2 en informatique à l’École Nationale d'Informatique Madagascar, je conçois et développe des applications web depuis plus de 6 ans.",
+      p2: "Mon parcours couvre des systèmes de gestion de robots, plateformes d'observation de la Terre, CRM, applications RH et systèmes de livraison, en startup comme en entreprise établie.",
+      p3: "Je suis disponible en freelance et j'interviens sur des architectures frontend modernes, des backends scalables, des microservices et des environnements Dockerisés.",
+      techTitle: "Stack récente",
     },
     stats: [
-      { label: "Experience", value: "6+ ans" },
+      { label: "Expérience", value: "6+ ans" },
       { label: "Focus", value: "Fullstack" },
       { label: "Base", value: "Madagascar" },
     ],
     experience: {
       sectionNum: "2.",
-      sectionTitle: "Experience",
+      sectionTitle: "Expérience",
       jobs: [
         {
           company: "Freelance",
-          role: "Developpeur Fullstack",
-          period: "Fev 2025 - Oct 2025",
+          role: "Développeur Fullstack",
+          period: "Fév 2025 - Oct 2025",
           bullets: [
-            "Developpement et maintenance du site web et des espaces clients d'une entreprise specialisee dans l'energie.",
-            "Migration de l'interface de Nuxt 2 vers Nuxt 3, amelioration des performances et modernisation du code.",
-            "Mise en place de nouvelles fonctionnalites avec Strapi et PostgreSQL.",
+            "Développement et maintenance du site web et des espaces clients d'une entreprise spécialisée dans l'énergie.",
+            "Migration de l'interface de Nuxt 2 vers Nuxt 3, amélioration des performances et modernisation du code.",
+            "Mise en place de nouvelles fonctionnalités avec Strapi et PostgreSQL.",
           ],
         },
         {
           company: "Hairun Technology",
-          role: "Consultant Developpeur Fullstack",
-          period: "Sep 2022 - Fev 2025",
+          role: "Consultant Développeur Fullstack",
+          period: "Sep 2022 - Fév 2025",
           bullets: [
-            "Developpement et maintenance de l'application de gestion et monitoring des robots Bbot.",
-            "Developpement d'une plateforme d'observation de la Terre pour des secteurs gouvernementaux, militaires et maritimes.",
-            "Systeme centralise pour restaurants et franchises: back office, maintenance robots et interface salle d'attente.",
+            "Développement et maintenance de l'application de gestion et monitoring des robots Bbot.",
+            "Développement d'une plateforme d'observation de la Terre pour des secteurs gouvernementaux, militaires et maritimes.",
+            "Système centralisé pour restaurants et franchises: back office, maintenance robots et interface salle d'attente.",
           ],
         },
         {
           company: "reffmedia",
-          role: "Developpeur Fullstack",
+          role: "Développeur Fullstack",
           period: "2022 - 2023",
           bullets: [
-            "Developpement d'un CRM dedie a la gestion des relations clients et a la generation de leads.",
-            "Architecture evenementielle avec RabbitMQ pour la communication entre services.",
-            "Monorepo gere avec Lerna.",
+            "Développement d'un CRM dédié à la gestion des relations clients et à la génération de leads.",
+            "Architecture événementielle avec RabbitMQ pour la communication entre services.",
+            "Monorepo géré avec Lerna.",
           ],
         },
         {
@@ -86,7 +86,7 @@ export const translations = {
           role: "Consultant",
           period: "Mar 2023 - Jun 2023",
           bullets: [
-            "Integration d'un systeme de chat en temps reel sur une plateforme RH.",
+            "Intégration d'un système de chat en temps réel sur une plateforme RH.",
             "Migration de l'application d'Angular 8 vers Angular 16.",
           ],
         },
@@ -95,8 +95,8 @@ export const translations = {
           role: "Chef de Projet & Dev Fullstack",
           period: "Jan 2022 - Sep 2022",
           bullets: [
-            "Conception et developpement d'une plateforme complete de gestion pour l'ONG Voakajy.",
-            "Modules RH, paie, conges, recrutement, formation, logistique, comptabilite et timesheet.",
+            "Conception et développement d'une plateforme complète de gestion pour l'ONG Voakajy.",
+            "Modules RH, paie, congés, recrutement, formation, logistique, comptabilité et timesheet.",
             "Architecture microservices avec Nest.js, Prisma, Next.js, MongoDB et PostgreSQL.",
           ],
         },
@@ -104,7 +104,7 @@ export const translations = {
     },
     work: {
       sectionNum: "3.",
-      sectionTitle: "Projets realises",
+      sectionTitle: "Projets réalisés",
       label: "Projet mis en avant",
       projects: [
         {
@@ -115,7 +115,7 @@ export const translations = {
         {
           title: "Plateforme Voakajy",
           description:
-            "Plateforme complete de gestion RH pour l'ONG Voakajy: employes, paie, conges, recrutement, formation, logistique, comptabilite et timesheet.",
+            "Plateforme complète de gestion RH pour l'ONG Voakajy: employés, paie, congés, recrutement, formation, logistique, comptabilité et timesheet.",
         },
       ],
     },
@@ -131,25 +131,25 @@ export const translations = {
         {
           title: "pazzirobotics - Back Office PCC",
           description:
-            "Systeme centralise pour restaurants et franchises: back office, maintenance robots et salle d'attente.",
+            "Système centralisé pour restaurants et franchises: back office, maintenance robots et salle d'attente.",
         },
         {
           title: "CRM reffmedia",
           description:
-            "CRM dedie a la relation client et a l'automatisation de leads, avec architecture evenementielle RabbitMQ.",
+            "CRM dédié à la relation client et à l'automatisation de leads, avec architecture événementielle RabbitMQ.",
         },
         {
           title: "meetual.com - API GraphQL v2",
           description:
-            "Developpement de l'API GraphQL v2 d'une plateforme de reservation de therapie en ligne.",
+            "Développement de l'API GraphQL v2 d'une plateforme de réservation de thérapie en ligne.",
         },
         {
           title: "Facily Post France",
           description: "Plateforme de gestion de livraison de courriers avec application mobile et backend.",
         },
         {
-          title: "Reservation Funerarium",
-          description: "Plateforme de reservation de funerarium et de pompes funebres.",
+          title: "Réservation Funérarium",
+          description: "Plateforme de réservation de funérarium et de pompes funèbres.",
         },
       ],
     },
@@ -158,15 +158,15 @@ export const translations = {
       sectionLabel: "Et maintenant ?",
       title: "Travaillons ensemble",
       description:
-        "Je suis disponible pour des missions freelance ou des opportunites a temps plein. Pour un projet, une question ou un echange, contactez-moi directement.",
+        "Je suis disponible pour des missions freelance ou des opportunités à temps plein. Pour un projet, une question ou un échange, contactez-moi directement.",
       cta: "Dire bonjour",
     },
     terminal: {
-      whoami: "Developpeur Fullstack, orientee produit, architecture et livraison.",
+      whoami: "Développeur Fullstack, orienté produit, architecture et livraison.",
       stack: "Vue/Nuxt, React/Next, Node/Nest, .NET, Docker, PostgreSQL, MongoDB, gRPC, GraphQL.",
-      availability: "Disponible pour missions freelance, renfort produit ou opportunites long terme.",
+      availability: "Disponible pour missions freelance, renfort produit ou opportunités long terme.",
     },
-    footer: "Concu et developpe par Santatraina Sitraka RANDRY",
+    footer: "Conçu et développé par Santatraina Sitraka RANDRY",
   },
 
   en: {

@@ -1,6 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Roboto, Inknut_Antiqua } from "next/font/google";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+};
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -19,21 +26,39 @@ const BASE_URL = "https://sanrandry.github.io";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Santatraina Sitraka RANDRY — Fullstack Developer / Développeur Fullstack",
+    default:
+      "Santatraina Sitraka RANDRY — Fullstack Developer / Développeur Fullstack",
     template: "%s | Santatraina Sitraka RANDRY",
   },
   description:
     "Fullstack developer specialized in Vue.js, Nuxt.js, React, Next.js, Node.js and microservices. Available for freelance. · Développeur Fullstack spécialisé Vue.js, Nuxt.js, React, Next.js, Node.js et microservices. Disponible en freelance.",
   keywords: [
     // EN
-    "Fullstack Developer", "Web Developer", "Freelance Developer",
-    "Vue.js", "Nuxt.js", "React", "Next.js", "Node.js", "Nest.js",
-    "TypeScript", "Microservices", "Docker", "PostgreSQL", "MongoDB",
-    "Madagascar", "Santatraina Sitraka RANDRY",
+    "Fullstack Developer",
+    "Web Developer",
+    "Freelance Developer",
+    "Vue.js",
+    "Nuxt.js",
+    "React",
+    "Next.js",
+    "Node.js",
+    "Nest.js",
+    "TypeScript",
+    "Microservices",
+    "Docker",
+    "PostgreSQL",
+    "MongoDB",
+    "Madagascar",
+    "Santatraina Sitraka RANDRY",
     // FR
-    "Développeur Fullstack", "Développeur Web", "Développeur Freelance",
-    "Développeur Vue.js", "Développeur React", "Développeur Node.js",
-    "Architecture microservices", "Développeur Madagascar",
+    "Développeur Fullstack",
+    "Développeur Web",
+    "Développeur Freelance",
+    "Développeur Vue.js",
+    "Développeur React",
+    "Développeur Node.js",
+    "Architecture microservices",
+    "Développeur Madagascar",
   ],
   authors: [{ name: "Santatraina Sitraka RANDRY", url: BASE_URL }],
   creator: "Santatraina Sitraka RANDRY",
@@ -54,7 +79,8 @@ export const metadata: Metadata = {
     alternateLocale: "fr_FR",
     url: BASE_URL,
     siteName: "Santatraina Sitraka RANDRY",
-    title: "Santatraina Sitraka RANDRY — Fullstack Developer / Développeur Fullstack",
+    title:
+      "Santatraina Sitraka RANDRY — Fullstack Developer / Développeur Fullstack",
     description:
       "Fullstack developer · Vue.js, Nuxt.js, React, Next.js, Node.js, microservices. Freelance available. · Développeur Fullstack disponible en freelance.",
     images: [
@@ -68,7 +94,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Santatraina Sitraka RANDRY — Fullstack Developer / Développeur Fullstack",
+    title:
+      "Santatraina Sitraka RANDRY — Fullstack Developer / Développeur Fullstack",
     description:
       "Fullstack developer · Vue.js, Nuxt.js, React, Next.js, Node.js. Freelance available. · Développeur Fullstack disponible en freelance.",
     images: ["/images/og-image.png"],
@@ -77,8 +104,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: BASE_URL,
     languages: {
-      "en": BASE_URL,
-      "fr": BASE_URL,
+      en: BASE_URL,
+      fr: BASE_URL,
       "x-default": BASE_URL,
     },
   },
@@ -100,9 +127,21 @@ const jsonLd = {
       ],
       knowsLanguage: ["en", "fr"],
       knowsAbout: [
-        "Vue.js", "Nuxt.js", "React", "Next.js", "Node.js", "Nest.js",
-        "TypeScript", "Microservices", "Docker", "PostgreSQL", "MongoDB",
-        "C# .NET", "gRPC", "GraphQL", "Prisma",
+        "Vue.js",
+        "Nuxt.js",
+        "React",
+        "Next.js",
+        "Node.js",
+        "Nest.js",
+        "TypeScript",
+        "Microservices",
+        "Docker",
+        "PostgreSQL",
+        "MongoDB",
+        "C# .NET",
+        "gRPC",
+        "GraphQL",
+        "Prisma",
       ],
       address: {
         "@type": "PostalAddress",
