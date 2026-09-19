@@ -34,9 +34,11 @@ type IconName =
   | "check"
   | "copy"
   | "external"
+  | "power"
   | "grid"
   | "settings";
 const paths: Record<IconName, string> = {
+  power: "M12 2v10M6.3 5.3a9 9 0 1 0 11.4 0",
   grid: "M4 4h5v5H4ZM15 4h5v5h-5ZM4 15h5v5H4ZM15 15h5v5h-5Z",
   settings:
     "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1Z",
@@ -370,8 +372,28 @@ export default function WebOSPortfolio() {
       try { await document.exitFullscreen(); } catch { setFullscreenFailed(true); }
     } else await enterFullscreen();
   }
+  const powerButton = (
+    <button
+      className="desktop-power"
+      onClick={toggleFullscreen}
+      disabled={screenMode === "standalone" || screenMode === "unsupported"}
+      aria-pressed={screenMode === "fullscreen"}
+      aria-label={screenMode === "fullscreen"
+        ? say("Éteindre — quitter le plein écran", "Power off — exit fullscreen")
+        : say("Activer le plein écran", "Enter fullscreen")}
+      title={screenMode === "standalone" || screenMode === "unsupported"
+        ? say("Utilisez les commandes de l’application ou du navigateur pour changer ce mode.", "Use the app or browser controls to change this mode.")
+        : screenMode === "fullscreen"
+          ? say("Quitter le plein écran sans fermer le portfolio. Échap fonctionne aussi.", "Exit fullscreen without closing the portfolio. Escape works too.")
+          : say("Activer le plein écran", "Enter fullscreen")}
+    >
+      <Icon name={screenMode === "fullscreen" ? "power" : "external"} size={16} />
+      <span>{screenMode === "fullscreen" ? say("Éteindre", "Power off") : say("Plein écran", "Fullscreen")}</span>
+    </button>
+  );
   const fullscreenHint = screenMode !== "fullscreen" && screenMode !== "standalone" && (
     <p className="mobile-fullscreen-note" role={fullscreenFailed ? "status" : undefined}>
+      <span className="fullscreen-mobile-copy">
       {screenMode === "unsupported" || fullscreenFailed
         ? say(
             "Pour ouvrir sans barre navigateur : menu Partager → Sur l’écran d’accueil (iPhone), ou menu du navigateur → Ajouter à l’écran d’accueil (Android), puis ouvrez cette icône.",
@@ -381,6 +403,12 @@ export default function WebOSPortfolio() {
             "Plein écran au premier toucher de la visite, puis depuis les réglages.",
             "Fullscreen on the visit’s first tap, then available in settings.",
           )}
+      </span>
+      <span className="fullscreen-desktop-copy">
+        {screenMode === "unsupported" || fullscreenFailed
+          ? say("Plein écran indisponible pour cette action. Utilisez les commandes de votre navigateur.", "Fullscreen is unavailable for this action. Use your browser controls.")
+          : say("Plein écran au premier clic de navigation. Éteindre ou Échap pour en sortir.", "Fullscreen on your first navigation click. Power off or Escape to exit.")}
+      </span>
     </p>
   );
   function openExperience() {
@@ -577,8 +605,7 @@ export default function WebOSPortfolio() {
         // Browsers require a gesture. One attempt per visit; never undo a user's exit.
         if (
           event.isTrusted && !fullscreenAttempted.current &&
-          (event.target as HTMLElement).closest(".ios-home button, .experience-option, .ios-tabs button, .ios-back, .ios-home-control, .ios-app-settings, .project-card, .project-row") &&
-          window.matchMedia("(max-width: 767px), (max-width: 1024px) and (max-height: 500px) and (pointer: coarse)").matches
+          (event.target as HTMLElement).closest(".ios-home button, .experience-option, .ios-tabs button, .ios-back, .ios-home-control, .ios-app-settings, .project-card, .project-row, .menubar-name, .menubar-links button, .finder-sidebar button, .dock button, .desktop-shortcuts button, .desktop-empty button, .chrome-launcher, .chrome-preferences, .hero-section button, button.text-button, .content-footer button, .system-dropdown button, .ios-search-results button")
         ) void enterFullscreen();
       }}
     >
@@ -889,6 +916,7 @@ export default function WebOSPortfolio() {
             {lang.toUpperCase()}
           </button>
           <Clock lang={lang} />
+          {powerButton}
         </div>
       </header>
       <div className="desktop-shortcuts">
@@ -1656,6 +1684,7 @@ export default function WebOSPortfolio() {
       </div>
       {android && (
         <div className="chrome-system-controls">
+          {powerButton}
           <button
             className="chrome-launcher"
             onClick={openSearch}
@@ -1686,6 +1715,11 @@ export default function WebOSPortfolio() {
             "Choix appliqué pour cette visite. Stockage local indisponible.",
             "Choice applied for this visit. Local storage unavailable.",
           )}
+        </p>
+      )}
+      {fullscreenFailed && (
+        <p className="desktop-fullscreen-error preference-notice" role="status">
+          {say("Plein écran indisponible pour cette action. Utilisez les commandes de votre navigateur.", "Fullscreen is unavailable for this action. Use your browser controls.")}
         </p>
       )}
       <dialog

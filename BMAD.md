@@ -1,5 +1,20 @@
 # Portfolio — boucle BMAD légère
 
+## Extension — plein écran PC et bouton Éteindre
+
+Demande : reprendre le plein écran automatique du téléphone sur PC, avec un bouton pour en sortir.
+
+- API existante réutilisée, première interaction réelle avec la navigation uniquement. Pas de nouvelle dépendance et pas de réactivation après sortie volontaire.
+- Bouton visible dans la barre macOS et le shelf ChromeOS : **Éteindre** appelle seulement `exitFullscreen()`, sans fermer l’onglet, modifier l’historique ou quitter la vue. Hors plein écran, bouton **Plein écran** pour le réactiver. Libellés FR/EN et variante compacte aux petites largeurs desktop.
+- API absente/mode d’application installé : bouton désactivé avec explication. Le plein écran F11 reste contrôlé par le navigateur, pas par cette API. Consignes desktop distinctes du repli d’installation mobile.
+- Test navigateur modifié avant correction : échec sur l’entrée automatique desktop. Après correction : passage dans les deux univers, premier clic réel, bouton Éteindre, conservation vue/URL/historique, réactivation manuelle et absence de retour automatique.
+- Inspection des deux bureaux en 768, 1024 et 1440 px : bouton à l’écran, directement cliquable, aucun débordement. Clic réel Éteindre validé dans macOS ; captures des deux variantes inspectées. Aucun arrêt système, `window.close()` ou redirection.
+- Validation finale : scénario navigateur complet sur export statique réussi (mobile conservé, deux bureaux, premier choix desktop, API absente et bouton absent sur téléphone) ; tests unitaires, TypeScript et build réussis ; lint sans erreur, trois avertissements `<img>` préexistants. Choix desktop : audit Lighthouse snapshot accessibilité/bonnes pratiques/SEO 100, aucun audit échoué.
+
+Livraison initiale locale ; après présentation de l’aperçu, l’utilisateur a demandé le déploiement de cette extension sur GitHub Pages.
+
+---
+
 ## Boucle — Retour natif du téléphone et plein écran par défaut
 
 Demande du 19 septembre 2026 : le bouton/geste Retour natif quittait le portfolio au lieu de restaurer la vue précédente ; demande complémentaire de plein écran mobile par défaut.

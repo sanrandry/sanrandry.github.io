@@ -187,16 +187,52 @@ try {
   console.log("PASS installed-app metadata and icons.");
 
   await call("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
-  await reload();
-  await waitFor("!!document.querySelector('.desktop:not(.preference-loading)')");
-  const point = await evaluate(`(() => { const r=document.querySelector("nav[aria-label='Navigation principale'] button:nth-child(2)").getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`);
-  await call("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
-  await call("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
-  await waitFor(projects);
-  assert.equal(await evaluate("!!document.fullscreenElement"), false, "Desktop must not automatically enter fullscreen");
-  await back();
-  await waitFor("document.querySelector('.view-heading')?.textContent.includes('Du code')");
-  console.log("PASS desktop: history and no automatic fullscreen.");
+  const mouseClick = async selector => {
+    const point = await evaluate(`(() => { const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`);
+    await call("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
+    await call("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
+  };
+  for (const ecosystem of ["google", "apple"]) {
+    await evaluate(`localStorage.setItem('portfolio-experience', ${JSON.stringify(ecosystem)})`);
+    await reload();
+    await waitFor("!!document.querySelector('.desktop:not(.preference-loading)')");
+    const power = ecosystem === "google" ? ".chrome-system-controls .desktop-power" : ".menubar .desktop-power";
+    await mouseClick("nav[aria-label='Navigation principale'] button:nth-child(2)");
+    await waitFor(projects);
+    await waitFor("!!document.fullscreenElement");
+    await waitFor(`document.querySelector(${JSON.stringify(power)})?.getAttribute('aria-pressed') === 'true'`);
+    assert.match(await evaluate(`document.querySelector(${JSON.stringify(power)}).textContent`), /Éteindre/);
+    const before = await evaluate("({view:history.state.portfolioView,length:history.length,url:location.href})");
+    await click(power);
+    await waitFor("!document.fullscreenElement");
+    assert.deepEqual(await evaluate("({view:history.state.portfolioView,length:history.length,url:location.href})"), before, "Power only exits fullscreen; preserve page, tab and history");
+    await mouseClick("nav[aria-label='Navigation principale'] button:last-child");
+    await waitFor("document.querySelector('.view-heading')?.textContent.includes('ensemble')");
+    assert.equal(await evaluate("!!document.fullscreenElement"), false, "Do not re-enter after Power");
+    await click(power);
+    await waitFor("!!document.fullscreenElement");
+    await evaluate("document.exitFullscreen()"); // Same fullscreenchange as browser Escape.
+    await waitFor("!document.fullscreenElement");
+    await back();
+    await waitFor(projects);
+    assert.equal(await evaluate("!!document.fullscreenElement"), false, "Native Back must not force fullscreen");
+    console.log(`PASS desktop ${ecosystem}: first click, Power exit, preserved navigation, manual re-entry.`);
+  }
+  await evaluate("localStorage.removeItem('portfolio-experience')");
+  await call("Page.navigate", { url: "about:blank" });
+  await waitFor("location.href === 'about:blank'");
+  await call("Page.navigate", { url: base });
+  await waitFor("!!document.querySelector('.experience-dialog[open]')");
+  await mouseClick(".option-google");
+  await waitFor("!!document.fullscreenElement");
+  await waitFor("document.querySelector('.chrome-system-controls .desktop-power')?.getAttribute('aria-pressed') === 'true'");
+  await click(".chrome-system-controls .desktop-power");
+  await waitFor("!document.fullscreenElement");
+  await evaluate("Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: false }); document.dispatchEvent(new Event('fullscreenchange'))");
+  await waitFor("document.querySelector('.chrome-system-controls .desktop-power').disabled");
+  await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  assert.equal(await evaluate("[...document.querySelectorAll('.desktop-power')].filter(e=>e.getClientRects().length).length"), 0);
+  console.log("PASS desktop first-visit chooser, unsupported API, desktop-only Power control.");
 } finally {
   try {
     if (targetId) await send("Target.closeTarget", { targetId });
