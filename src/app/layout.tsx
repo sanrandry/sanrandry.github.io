@@ -24,6 +24,9 @@ const inknutAntiqua = Inknut_Antiqua({
 const BASE_URL = "https://sanrandry.github.io";
 
 export const metadata: Metadata = {
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Randry", statusBarStyle: "black-translucent" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
   metadataBase: new URL(BASE_URL),
   title: {
     default:

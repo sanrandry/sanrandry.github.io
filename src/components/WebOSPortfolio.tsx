@@ -13,17 +13,14 @@ import {
   terminalReply,
   normalizeSearch,
   parseExperience,
+  initialView,
+  parsePortfolioView,
   type Experience,
+  type Page,
+  type PortfolioView,
 } from "@/lib/desktop";
 import "./desktop.css";
 
-type Page =
-  | "home"
-  | "projects"
-  | "experience"
-  | "about"
-  | "contact"
-  | "terminal";
 type IconName =
   | Page
   | "github"
@@ -203,8 +200,13 @@ export default function WebOSPortfolio() {
   const experienceDialog = useRef<HTMLDialogElement>(null);
   const android = experience === "google";
   const [lang, setLang] = useState<Lang>("fr");
-  const [page, setPage] = useState<Page>("home");
-  const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const [view, setView] = useState(initialView);
+  const currentView = useRef(initialView);
+  const previousView = useRef(initialView);
+  const { page, appOpen: mobileAppOpen, project: selected } = view;
+  const [screenMode, setScreenMode] = useState("browser");
+  const [fullscreenFailed, setFullscreenFailed] = useState(false);
+  const fullscreenAttempted = useRef(false);
   const [query, setQuery] = useState("");
   const [windowState, setWindowState] = useState<
     "open" | "minimized" | "closed"
@@ -213,7 +215,6 @@ export default function WebOSPortfolio() {
   const [dark, setDark] = useState(false);
   const [motion, setMotion] = useState(true);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [selected, setSelected] = useState(0);
   const [command, setCommand] = useState("");
   const [history, setHistory] = useState<{ input: string; output: string }[]>(
     [],
@@ -246,6 +247,7 @@ export default function WebOSPortfolio() {
     terminal: "Terminal",
   };
   const projects = [...t.work.projects, ...t.projects.items];
+  const projectCount = projects.length;
   const mobileApps: Page[] = [
     "home",
     "projects",
@@ -269,6 +271,14 @@ export default function WebOSPortfolio() {
   }, [lang]);
   useEffect(() => {
     // ponytail: one local preference, no account or device detection. Invalid values show the chooser again.
+    const restore = (event: PopStateEvent) => {
+      const next = parsePortfolioView(event.state?.portfolioView, projectCount) ?? initialView;
+      currentView.current = next;
+      setView(next);
+      setWindowState("open");
+      menu.current?.removeAttribute("open");
+    };
+    window.addEventListener("popstate", restore);
     const frame = requestAnimationFrame(() => {
       let saved: Experience | null = null;
       try {
@@ -279,16 +289,103 @@ export default function WebOSPortfolio() {
       if (saved) {
         setExperience(saved);
         setHasChosenExperience(true);
-      } else requestAnimationFrame(() => experienceDialog.current?.showModal());
+      }
+      const restored = parsePortfolioView(window.history.state?.portfolioView, projectCount) ?? initialView;
+      const next: PortfolioView = saved ? restored : { ...restored, overlay: "experience" };
+      // Preserve Next's history fields; never add a sentinel that traps Back at the launcher.
+      window.history.replaceState({ ...window.history.state, portfolioView: next }, "");
+      currentView.current = next;
+      setView(next);
       setPreferenceReady(true);
     });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("popstate", restore);
+    };
+  }, [projectCount]);
+  function visit(change: Partial<PortfolioView>, replace = false) {
+    const before = currentView.current;
+    const next = { ...before, ...change };
+    if (JSON.stringify(before) === JSON.stringify(next)) return;
+    next.depth = before.depth + (replace ? 0 : 1);
+    window.history[replace ? "replaceState" : "pushState"](
+      { ...window.history.state, portfolioView: next }, "",
+    );
+    currentView.current = next;
+    setView(next);
+  }
+  function closeOverlay() {
+    if (currentView.current.depth > 0) window.history.back();
+    else visit({ overlay: null }, true);
+  }
+  useEffect(() => {
+    const dialogs = {
+      project: dialog.current, search: searchDialog.current,
+      settings: settingsDialog.current, experience: experienceDialog.current,
+    };
+    for (const [name, element] of Object.entries(dialogs)) {
+      if (name !== view.overlay && element?.open) element.close();
+    }
+    if (view.overlay && !dialogs[view.overlay]?.open) dialogs[view.overlay]?.showModal();
+    const before = previousView.current;
+    previousView.current = view;
+    if (view.overlay || (before.page === view.page && before.appOpen === view.appOpen)) return;
+    const frame = requestAnimationFrame(() => {
+      if (view.appOpen) {
+        content.current?.scrollTo(0, 0);
+        content.current?.querySelector<HTMLElement>(".view-heading")?.focus({ preventScroll: true });
+      } else {
+        const origin = mobileOrigin.current;
+        if (origin?.isConnected && origin.getClientRects().length) origin.focus({ preventScroll: true });
+        else mobileHome.current?.focus({ preventScroll: true });
+      }
+    });
     return () => cancelAnimationFrame(frame);
+  }, [view]);
+  useEffect(() => {
+    const standalone = window.matchMedia("(display-mode: standalone), (display-mode: fullscreen)");
+    const update = () => setScreenMode(document.fullscreenElement ? "fullscreen" : standalone.matches ? "standalone" : document.fullscreenEnabled ? "browser" : "unsupported");
+    const frame = requestAnimationFrame(update);
+    document.addEventListener("fullscreenchange", update);
+    standalone.addEventListener("change", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("fullscreenchange", update);
+      standalone.removeEventListener("change", update);
+    };
   }, []);
+  async function enterFullscreen() {
+    fullscreenAttempted.current = true;
+    if (document.fullscreenElement || screenMode === "standalone") return;
+    try {
+      if (!document.fullscreenEnabled) return;
+      await document.documentElement.requestFullscreen({ navigationUI: "hide" });
+      setFullscreenFailed(false);
+    } catch {
+      setFullscreenFailed(true);
+    }
+  }
+  async function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      try { await document.exitFullscreen(); } catch { setFullscreenFailed(true); }
+    } else await enterFullscreen();
+  }
+  const fullscreenHint = screenMode !== "fullscreen" && screenMode !== "standalone" && (
+    <p className="mobile-fullscreen-note" role={fullscreenFailed ? "status" : undefined}>
+      {screenMode === "unsupported" || fullscreenFailed
+        ? say(
+            "Pour ouvrir sans barre navigateur : menu Partager → Sur l’écran d’accueil (iPhone), ou menu du navigateur → Ajouter à l’écran d’accueil (Android), puis ouvrez cette icône.",
+            "To open without browser bars: Share → Add to Home Screen (iPhone), or browser menu → Add to Home Screen (Android), then launch that icon.",
+          )
+        : say(
+            "Plein écran au premier toucher de la visite, puis depuis les réglages.",
+            "Fullscreen on the visit’s first tap, then available in settings.",
+          )}
+    </p>
+  );
   function openExperience() {
-    settingsDialog.current?.close();
-    searchDialog.current?.close();
     menu.current?.removeAttribute("open");
-    experienceDialog.current?.showModal();
+    visit({ overlay: "experience" });
   }
   function chooseExperience(next: Experience) {
     setExperience(next);
@@ -301,7 +398,7 @@ export default function WebOSPortfolio() {
     } catch {
       setStorageUnavailable(true);
     }
-    experienceDialog.current?.close();
+    closeOverlay();
     requestAnimationFrame(() => {
       const target = [
         ...document.querySelectorAll<HTMLElement>(
@@ -330,33 +427,20 @@ export default function WebOSPortfolio() {
   function navigate(next: Page) {
     if (!mobileAppOpen)
       mobileOrigin.current = document.activeElement as HTMLElement;
-    setPage(next);
     setWindowState("open");
-    setMobileAppOpen(true);
+    visit({ page: next, appOpen: true, overlay: null, project: 0 });
     menu.current?.removeAttribute("open");
-    requestAnimationFrame(() => {
-      content.current?.scrollTo(0, 0);
-      content.current
-        ?.querySelector<HTMLElement>(".view-heading")
-        ?.focus({ preventScroll: true });
-    });
   }
   function returnToMobileHome() {
-    setMobileAppOpen(false);
-    requestAnimationFrame(() => {
-      const origin = mobileOrigin.current;
-      if (origin?.isConnected && origin.getClientRects().length)
-        origin.focus({ preventScroll: true });
-      else mobileHome.current?.focus({ preventScroll: true });
-    });
+    visit({ appOpen: false, overlay: null });
   }
   function openSearch() {
     setQuery("");
-    searchDialog.current?.showModal();
+    visit({ overlay: "search" });
   }
   function hideWindow(next: "closed" | "minimized") {
     setWindowState(next);
-    setMobileAppOpen(false);
+    visit({ appOpen: false }, true);
     homeDock.current?.focus();
   }
   function startDrag(event: PointerEvent<HTMLElement>) {
@@ -397,8 +481,7 @@ export default function WebOSPortfolio() {
       });
   }
   function showProject(index: number) {
-    setSelected(index);
-    dialog.current?.showModal();
+    visit({ project: index, overlay: "project" });
   }
   async function copyEmail() {
     try {
@@ -490,6 +573,14 @@ export default function WebOSPortfolio() {
     <div
       className={`desktop ${preferenceReady ? "" : "preference-loading"} ${android ? "ecosystem-google" : "ecosystem-apple"} ${dark ? "theme-dark" : ""} ${motion ? "" : "motion-off"} ${mobileAppOpen ? "mobile-app-open" : ""}`}
       lang={lang}
+      onClickCapture={(event) => {
+        // Browsers require a gesture. One attempt per visit; never undo a user's exit.
+        if (
+          event.isTrusted && !fullscreenAttempted.current &&
+          (event.target as HTMLElement).closest(".ios-home button, .experience-option, .ios-tabs button, .ios-back, .ios-home-control, .ios-app-settings, .project-card, .project-row") &&
+          window.matchMedia("(max-width: 767px), (max-width: 1024px) and (max-height: 500px) and (pointer: coarse)").matches
+        ) void enterFullscreen();
+      }}
     >
       <noscript>
         <style>{".desktop.preference-loading { visibility: visible; }"}</style>
@@ -497,9 +588,9 @@ export default function WebOSPortfolio() {
       <a
         className="desktop-skip"
         href="#portfolio-content"
-        onClick={() => {
-          setWindowState("open");
-          setMobileAppOpen(true);
+        onClick={(event) => {
+          event.preventDefault();
+          navigate(page);
         }}
       >
         {say("Aller au contenu", "Skip to content")}
@@ -634,7 +725,7 @@ export default function WebOSPortfolio() {
             </a>
             <button
               className="ios-launch-app"
-              onClick={() => settingsDialog.current?.showModal()}
+              onClick={() => visit({ overlay: "settings" })}
             >
               {mobileIcon("settings")}
               <span>{say("Réglages", "Settings")}</span>
@@ -667,6 +758,7 @@ export default function WebOSPortfolio() {
               "A little about me. At your fingertips.",
             )}
           </p>
+          {fullscreenHint}
         </div>
         <div className="ios-launcher-bottom">
           <button className="ios-search-trigger" onClick={openSearch}>
@@ -874,7 +966,7 @@ export default function WebOSPortfolio() {
             <strong className="ios-app-title">{appName(page)}</strong>
             <button
               className="ios-app-settings"
-              onClick={() => settingsDialog.current?.showModal()}
+              onClick={() => visit({ overlay: "settings" })}
               aria-label={say("Réglages", "Settings")}
             >
               <span aria-hidden="true">{android ? "⋮" : "•••"}</span>
@@ -1576,7 +1668,7 @@ export default function WebOSPortfolio() {
           </button>
           <button
             className="chrome-preferences"
-            onClick={() => settingsDialog.current?.showModal()}
+            onClick={() => visit({ overlay: "settings" })}
             data-experience-trigger
           >
             <span className="sr-only">
@@ -1597,6 +1689,7 @@ export default function WebOSPortfolio() {
         </p>
       )}
       <dialog
+        onCancel={(event) => { event.preventDefault(); closeOverlay(); }}
         className="experience-dialog"
         ref={experienceDialog}
         aria-labelledby="experience-title"
@@ -1620,7 +1713,7 @@ export default function WebOSPortfolio() {
             </button>
             <button
               className="experience-close"
-              onClick={() => experienceDialog.current?.close()}
+              onClick={closeOverlay}
               aria-label={say(
                 "Fermer, conserver le style actuel",
                 "Close, keep current style",
@@ -1701,8 +1794,10 @@ export default function WebOSPortfolio() {
             "Remembered in this browser. Change it anytime in settings.",
           )}
         </p>
+        {fullscreenHint}
       </dialog>
       <dialog
+        onCancel={(event) => { event.preventDefault(); closeOverlay(); }}
         className="ios-sheet ios-settings"
         ref={settingsDialog}
         aria-labelledby="ios-settings-title"
@@ -1710,7 +1805,7 @@ export default function WebOSPortfolio() {
         <div className="ios-sheet-handle" aria-hidden="true" />
         <header>
           <h2 id="ios-settings-title">{say("Réglages", "Settings")}</h2>
-          <button onClick={() => settingsDialog.current?.close()}>
+          <button onClick={closeOverlay}>
             {say("OK", "Done")}
           </button>
         </header>
@@ -1747,7 +1842,18 @@ export default function WebOSPortfolio() {
               aria-hidden="true"
             />
           </button>
+          <button
+            className="fullscreen-control"
+            onClick={toggleFullscreen}
+            disabled={screenMode === "standalone" || screenMode === "unsupported"}
+            aria-pressed={screenMode === "fullscreen" || screenMode === "standalone"}
+          >
+            <Icon name="external" />
+            <span>{say("Plein écran", "Fullscreen")}</span>
+            <span className={`ios-switch ${screenMode === "fullscreen" || screenMode === "standalone" ? "is-on" : ""}`} aria-hidden="true" />
+          </button>
         </div>
+        {fullscreenHint}
         <p className="ios-settings-note">
           {say(
             "La préférence de mouvement réduit de votre appareil reste prioritaire.",
@@ -1761,6 +1867,7 @@ export default function WebOSPortfolio() {
         <small>Randry OS · Portfolio 2026</small>
       </dialog>
       <dialog
+        onCancel={(event) => { event.preventDefault(); closeOverlay(); }}
         className="ios-sheet ios-spotlight"
         ref={searchDialog}
         aria-label={say("Rechercher dans le portfolio", "Search the portfolio")}
@@ -1778,7 +1885,7 @@ export default function WebOSPortfolio() {
             spellCheck={false}
           />
           <button
-            onClick={() => searchDialog.current?.close()}
+            onClick={closeOverlay}
             aria-label={say("Fermer la recherche", "Close search")}
           >
             ×
@@ -1795,10 +1902,7 @@ export default function WebOSPortfolio() {
               {matchedApps.map((item) => (
                 <button
                   key={item}
-                  onClick={() => {
-                    searchDialog.current?.close();
-                    navigate(item);
-                  }}
+                  onClick={() => navigate(item)}
                 >
                   {mobileIcon(item)}
                   <span>{appName(item)}</span>
@@ -1813,11 +1917,7 @@ export default function WebOSPortfolio() {
               {matchedProjects.map((project) => (
                 <button
                   key={project.index}
-                  onClick={() => {
-                    searchDialog.current?.close();
-                    navigate("projects");
-                    requestAnimationFrame(() => showProject(project.index));
-                  }}
+                  onClick={() => showProject(project.index)}
                 >
                   <span className="ios-search-project-icon">
                     <Icon name="projects" />
@@ -1839,11 +1939,12 @@ export default function WebOSPortfolio() {
         </div>
       </dialog>
       <dialog
+        onCancel={(event) => { event.preventDefault(); closeOverlay(); }}
         ref={dialog}
         className="project-dialog"
         aria-labelledby="project-dialog-title"
         onClick={(event) => {
-          if (event.target === event.currentTarget) dialog.current?.close();
+          if (event.target === event.currentTarget) closeOverlay();
         }}
       >
         <div className="project-dialog-content">
@@ -1852,7 +1953,7 @@ export default function WebOSPortfolio() {
               {say("NOTE DE PROJET", "PROJECT NOTE")} / 0{selected + 1}
             </span>
             <button
-              onClick={() => dialog.current?.close()}
+              onClick={closeOverlay}
               aria-label={say(
                 "Fermer le détail du projet",
                 "Close project details",

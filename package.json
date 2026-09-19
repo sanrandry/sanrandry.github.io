@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --experimental-strip-types tests/desktop.test.mjs",
+    "test:browser": "node tests/browser-navigation.test.mjs",
     "preversion": "npm run lint",
     "version": "git add package.json",
     "postversion": "git push && git push --tags",

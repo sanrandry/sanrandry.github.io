@@ -73,3 +73,16 @@ for (const invalid of [
 console.log(
   "Experience checks passed: only persisted apple/google choices are accepted.",
 );
+
+const { initialView, parsePortfolioView } = await import("../src/lib/desktop.ts");
+assert.deepEqual(parsePortfolioView(initialView, 8), initialView);
+assert.deepEqual(parsePortfolioView({ ...initialView, page: "projects", overlay: "project", project: 7, depth: 2 }, 8),
+  { ...initialView, page: "projects", overlay: "project", project: 7, depth: 2 });
+for (const invalid of [null, {}, "projects", { ...initialView, page: "bad" },
+  { ...initialView, appOpen: 1 }, { ...initialView, overlay: "bad" },
+  { ...initialView, project: -1 }, { ...initialView, project: 8 },
+  { ...initialView, project: 1.5 }, { ...initialView, depth: -1 },
+  { ...initialView, depth: Infinity }, { ...initialView, depth: 0.1 }]) {
+  assert.equal(parsePortfolioView(invalid, 8), null);
+}
+console.log("History state checks passed: validated views, overlays, project bounds and depth.");

@@ -1,5 +1,46 @@
 # Portfolio — boucle BMAD légère
 
+## Boucle — Retour natif du téléphone et plein écran par défaut
+
+Demande du 19 septembre 2026 : le bouton/geste Retour natif quittait le portfolio au lieu de restaurer la vue précédente ; demande complémentaire de plein écran mobile par défaut.
+
+### Cadrage / reproduction
+
+- Parcours minimal : onglet vide → portfolio mobile → Android → Projets → Retour natif. L’historique restait à deux entrées ; Retour ouvrait `about:blank` plutôt que l’accueil du portfolio.
+- Test écrit avant correction : `node tests/browser-navigation.test.mjs`, échec `Native Back must not leave the portfolio from Projects`, origine réelle `null` au lieu de l’origine du portfolio. Même symptôme reproduit via le bouton Retour de Chrome piloté par DevTools.
+- Hypothèses classées : transitions non inscrites dans l’historique ; état non restauré lors de `popstate` ; dialogues suivis seulement dans le DOM. Inspection : trois mécanismes absents, navigation uniquement via état React/`showModal()`.
+
+### Architecture / correction minimale
+
+- API History native, sans routeur ou dépendance supplémentaire. État validé et borné (`portfolioView`) : vue, accueil/app, dialogue, index du projet, profondeur. Champs Next conservés, entrée initiale remplacée, transitions réelles ajoutées ; restauration sur Retour/Suivant/rechargement.
+- Un seul état pilote désormais vues et quatre dialogues. Fermer une fiche, une recherche ou les réglages consomme son entrée ; Échap/fermeture native suit la même logique. Revenir d’une fiche issue de la recherche restaure la recherche. Cliquer à nouveau l’onglet courant n’ajoute pas d’entrée.
+- Aucun faux historique ajouté au lancement et aucun blocage de sortie depuis l’accueil. Confinement du défilement limité à l’axe vertical pour ne pas interdire les gestes de navigation horizontaux.
+- Plein écran : tentative au premier toucher réel d’un contrôle mobile, gestion des refus/API absente et bouton dans les réglages. Sortie volontaire respectée, pas de boucle de réactivation. Le navigateur exige une activation utilisateur : impossible de forcer un onglet classique au chargement.
+- Manifeste `display: fullscreen`, métadonnées web-app et icônes PNG dérivées de l’icône existante via `sharp` déjà installé. Lancement depuis l’écran d’accueil sans barre navigateur ; pas de service worker, promesse hors ligne ou masquage garanti des barres système.
+
+### Références de plateforme
+
+- [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API) : `replaceState`, `pushState`, `popstate`.
+- [Fullscreen API](https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen) : activation utilisateur obligatoire et refus possibles.
+- [WebKit — applications écran d’accueil](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/) : manifeste `standalone`/`fullscreen` pour ouverture en web-app.
+- [Overscroll behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overscroll-behavior) : confinement horizontal susceptible d’empêcher le geste Retour.
+
+### Validation
+
+- [x] Reproduction rouge conservée dans un test navigateur exécutable sans nouvelle dépendance.
+- [x] Retour/Suivant, fiches, fermeture, rechargement, onglets, réglages imbriqués, recherche et sortie depuis la racine vérifiés dans les deux univers mobiles.
+- [x] Plein écran déclenché par toucher réel dans Chrome, sortie puis absence de réactivation forcée, entrée/sortie depuis réglages vérifiées.
+- [x] API refusée ou absente : consigne d’ajout à l’écran d’accueil, navigation conservée.
+- [x] Export statique : scénario complet `PORTFOLIO_URL=http://127.0.0.1:4173/ npm run test:browser` réussi, y compris entrée/sortie plein écran via de vrais événements tactiles et contrôle desktop sans activation automatique.
+- [x] Douze états responsive : accueil/réglages des deux univers en 320×568, 390×844 et 844×390. Aucun débordement horizontal, bas des contenus accessible, axe horizontal `overscroll-behavior-x: auto`. Captures 320 px du repli et des réglages inspectées.
+- [x] `npm test`, lint (zéro erreur, trois avertissements `<img>` préexistants), TypeScript et `npm run build` réussis. Manifeste/icônes HTTP 200 ; Lighthouse snapshot de l’accueil iPhone avec aide d’installation : accessibilité/bonnes pratiques/SEO 100, aucun audit échoué. Console export sans erreur/alerte.
+
+Le test navigateur pilote directement les entrées de l’historique via CDP et attend un nouveau document après rechargement : pas d’évaluation JavaScript détruite par un retour inter-document, ni de faux positif sur l’ancien DOM. Aucun log de diagnostic ajouté au produit.
+
+Validation Chrome/émulation et API réelles ; pas de téléphone physique ni de Safari iOS disponible. Le système peut consommer un premier Retour pour sortir du plein écran. Les images utilisateur non suivies restent intactes. Livraison initiale locale seulement, conformément à la demande. Après validation de cet aperçu, l’utilisateur a demandé séparément le déploiement sur GitHub Pages.
+
+---
+
 ## Boucle — choisir son univers : iPhone ou Android
 
 Demande du 19 septembre 2026 : choix explicite iPhone/Android, avec macOS/iOS existants côté iPhone et ChromeOS/Pixel côté Android.
