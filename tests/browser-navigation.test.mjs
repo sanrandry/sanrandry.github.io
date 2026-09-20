@@ -233,6 +233,30 @@ try {
   await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   assert.equal(await evaluate("[...document.querySelectorAll('.desktop-power')].filter(e=>e.getClientRects().length).length"), 0);
   console.log("PASS desktop first-visit chooser, unsupported API, desktop-only Power control.");
+
+  // Extracted views must not remount their visit-scoped state on navigation.
+  await reload();
+  await waitFor(launcher);
+  await click(".ios-launch-terminal");
+  await waitFor("!!document.querySelector('#terminal-command')");
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.terminal-panel form')).display"), "flex", "Tailwind layout must be present in the exported build");
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.terminal-hints')).flexWrap"), "wrap");
+  await click(".terminal-hints button");
+  await evaluate("document.querySelector('.terminal-panel form').requestSubmit()", true);
+  await waitFor("document.querySelector('.terminal-history')?.textContent.includes('Santatraina')");
+  await click(".ios-tabs button:nth-child(2)");
+  await waitFor(projects);
+  await back();
+  await waitFor("document.querySelector('.terminal-history')?.textContent.includes('Santatraina')");
+  await click(".terminal-hints button:nth-child(2)");
+  await click(".ios-tabs button:nth-child(2)");
+  await waitFor(projects);
+  await back();
+  await waitFor("document.querySelector('#terminal-command')?.value === 'stack'");
+  await evaluate("document.querySelector('.terminal-panel form').requestSubmit()", true);
+  await waitFor("document.querySelector('.terminal-history')?.textContent.includes('PostgreSQL')");
+  assert.equal(await evaluate("document.querySelectorAll('.terminal-history pre').length"), 2);
+  console.log("PASS extracted views: terminal history and draft survive navigation and native Back.");
 } finally {
   try {
     if (targetId) await send("Target.closeTarget", { targetId });

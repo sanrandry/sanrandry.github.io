@@ -1,0 +1,343 @@
+/* iPhone home screen. Desktop shell above remains unchanged. */
+.ios-statusbar,
+.ios-home,
+.ios-back,
+.ios-app-title,
+.ios-app-settings,
+.ios-tabs,
+.ios-home-control {
+  display: none;
+}
+.ios-app-icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 1px #ffffff6b,
+    0 4px 10px #00283b25;
+  flex-shrink: 0;
+}
+.ios-icon-home {
+  background: linear-gradient(#fefefe, #e1edf4);
+}
+.ios-compass {
+  width: 48px;
+  height: 48px;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      #ffffffc9 0deg 1deg,
+      transparent 1deg 15deg
+    ),
+    linear-gradient(#62cff7, #0879e6);
+  border: 3px solid white;
+  border-radius: 50%;
+  position: relative;
+  transform: rotate(35deg);
+}
+.ios-compass::before,
+.ios-compass::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  border-inline: 6px solid transparent;
+}
+.ios-compass::before {
+  border-bottom: 20px solid #ff625c;
+  top: 2px;
+}
+.ios-compass::after {
+  border-top: 20px solid #fff;
+  top: 21px;
+}
+.ios-icon-projects {
+  background: linear-gradient(#70d2ff, #138bea);
+}
+.ios-icon-experience {
+  background: linear-gradient(#ffbf66, #e9852b);
+}
+.ios-icon-about {
+  background: #b8cec6;
+}
+.ios-icon-about img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ios-icon-terminal {
+  background: linear-gradient(#41464f, #171d25);
+  border: 3px solid #bbc5cc;
+}
+.ios-icon-contact {
+  background: linear-gradient(#53bfff, #1277eb);
+}
+.ios-icon-github {
+  background: linear-gradient(#393d47, #151a22);
+}
+.ios-icon-linkedin {
+  background: linear-gradient(#238dcc, #0a5f98);
+}
+.ios-icon-settings {
+  background: linear-gradient(#dfdfe2, #9ea4ab);
+  color: #49525a;
+}
+.ios-gear {
+  font-family: Arial, sans-serif;
+  font-size: 51px;
+  line-height: 1;
+  text-shadow: 0 1px 1px #fff;
+}
+.ios-icon-cv {
+  background: linear-gradient(#fff, #e5edf4);
+}
+.ios-pdf {
+  color: #b74340;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.5px;
+}
+.ios-pdf i {
+  display: block;
+  height: 2px;
+  margin-top: 6px;
+  background: #a1b1be;
+}
+.ios-sheet {
+  width: min(560px, 100%);
+  max-width: 100%;
+  max-height: calc(100dvh - 70px);
+  margin: 0 auto;
+  inset: auto 0 0;
+  background: var(--paper);
+  color: var(--ink);
+  border: 0;
+  border-radius: 25px 25px 0 0;
+  padding: 10px 24px max(26px, env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 60px #061e3440;
+  overflow: auto;
+}
+.ios-sheet::backdrop {
+  background: #0c243d73;
+  backdrop-filter: blur(16px);
+}
+.ios-sheet-handle {
+  width: 35px;
+  height: 5px;
+  border-radius: 10px;
+  background: #aeb9c4;
+  margin: 0 auto 16px;
+}
+.ios-sheet header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ios-sheet h2 {
+  font-size: 27px;
+  letter-spacing: -0.7px;
+  font-weight: 650;
+}
+.ios-sheet header > button {
+  min-width: 44px;
+  min-height: 44px;
+  color: #1968c0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.ios-sheet > p {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 6px 0 24px;
+}
+.ios-settings-group {
+  background: var(--sidebar);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  overflow: hidden;
+}
+.ios-settings-group > button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 13px;
+  min-height: 59px;
+  padding: 12px 14px;
+  font-size: 15px;
+  text-align: left;
+}
+.ios-settings-group > button + button {
+  border-top: 1px solid var(--line);
+}
+.ios-settings-group > button > svg {
+  color: #678cb1;
+}
+.ios-settings-group strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: auto;
+}
+.ios-switch {
+  width: 46px;
+  height: 28px;
+  background: #8a939c;
+  border-radius: 18px;
+  margin-left: auto;
+  flex-shrink: 0;
+  position: relative;
+}
+.ios-switch::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: white;
+  box-shadow: 0 1px 3px #0003;
+  transition: transform 0.2s;
+}
+.ios-switch.is-on {
+  background: #2b9d57;
+}
+.ios-switch.is-on::after {
+  transform: translateX(18px);
+}
+.ios-sheet > .ios-settings-note {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 15px 4px 20px;
+}
+.ios-classic-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 14px;
+  min-height: 48px;
+  color: var(--accent) !important;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.ios-settings > small {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 23px;
+}
+.ios-spotlight {
+  inset: max(72px, env(safe-area-inset-top)) 12px auto;
+  width: calc(100% - 24px);
+  max-width: 536px;
+  max-height: calc(100dvh - 130px);
+  border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+}
+.ios-spotlight[open] {
+  display: flex;
+  flex-direction: column;
+}
+.ios-search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px 7px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.ios-search-field > span {
+  font-size: 27px;
+  color: var(--muted);
+}
+.ios-search-field input {
+  min-width: 0;
+  flex: 1;
+  background: none;
+  color: var(--ink);
+  border: 0;
+  outline: none;
+  height: 44px;
+  font-size: 16px;
+}
+.ios-search-field button {
+  width: 44px;
+  height: 44px;
+  font-size: 25px;
+  color: var(--muted);
+}
+.ios-search-results {
+  overflow-y: auto;
+  padding: 12px 12px 24px;
+  overscroll-behavior-y: contain;
+}
+.ios-result-count {
+  font-size: 12px;
+  padding: 0 6px 8px;
+  color: var(--muted);
+}
+.ios-search-results h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--muted);
+  padding: 15px 7px 8px;
+}
+.ios-search-results > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  text-align: left;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.ios-search-results > button:hover {
+  background: var(--soft);
+}
+.ios-search-results > button > span:last-child {
+  margin-left: auto;
+  color: var(--muted);
+}
+.ios-search-results .ios-app-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+}
+.ios-search-results .ios-app-icon > svg {
+  width: 22px;
+  height: 22px;
+}
+.ios-search-results .ios-compass {
+  scale: 0.63;
+}
+.ios-search-project-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--soft);
+  color: #5d88ad;
+  display: grid;
+  place-items: center;
+}
+.ios-search-empty {
+  padding: 25px 12px;
+  line-height: 1.7;
+  color: var(--muted);
+  font-size: 14px;
+}
+.theme-dark .ios-sheet header > button {
+  color: #9dccff;
+}
+.theme-dark .ios-classic-link {
+  color: #9dccff !important;
+}

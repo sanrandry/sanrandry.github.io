@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { terminalReply } from "../src/lib/desktop.ts";
+import { terminalReply } from "../src/features/web-os/model.ts";
 
 assert.match(terminalReply("  WHOAMI  ", "fr"), /Santatraina/);
 assert.match(terminalReply("whoami", "en"), /Fullstack developer/);
@@ -36,7 +36,7 @@ console.log(
 );
 
 // Spotlight search ignores casing and accents without interpreting query text as code or a regex.
-const { normalizeSearch } = await import("../src/lib/desktop.ts");
+const { normalizeSearch } = await import("../src/features/web-os/model.ts");
 assert.equal(normalizeSearch("  À PROPOS  "), "a propos");
 assert.equal(
   normalizeSearch("Réservation Funérarium"),
@@ -54,7 +54,7 @@ console.log(
   "iOS search checks passed: accents, case, Unicode normalization, empty and literal query.",
 );
 
-const { parseExperience } = await import("../src/lib/desktop.ts");
+const { parseExperience } = await import("../src/features/web-os/model.ts");
 assert.equal(parseExperience("apple"), "apple");
 assert.equal(parseExperience("google"), "google");
 for (const invalid of [
@@ -74,7 +74,7 @@ console.log(
   "Experience checks passed: only persisted apple/google choices are accepted.",
 );
 
-const { initialView, parsePortfolioView } = await import("../src/lib/desktop.ts");
+const { initialView, parsePortfolioView } = await import("../src/features/web-os/model.ts");
 assert.deepEqual(parsePortfolioView(initialView, 8), initialView);
 assert.deepEqual(parsePortfolioView({ ...initialView, page: "projects", overlay: "project", project: 7, depth: 2 }, 8),
   { ...initialView, page: "projects", overlay: "project", project: 7, depth: 2 });
@@ -86,3 +86,20 @@ for (const invalid of [null, {}, "projects", { ...initialView, page: "bad" },
   assert.equal(parsePortfolioView(invalid, 8), null);
 }
 console.log("History state checks passed: validated views, overlays, project bounds and depth.");
+
+const { getPortfolioContent, projectTech } = await import("../src/features/web-os/content.ts");
+for (const lang of ["fr", "en"]) {
+  const content = getPortfolioContent(lang);
+  assert.equal(content.lang, lang);
+  assert.equal(content.t, translations[lang]);
+  assert.deepEqual(content.projects, [...translations[lang].work.projects, ...translations[lang].projects.items]);
+  assert.equal(content.projects.length, projectTech.length);
+  assert.ok(projectTech.every(stack => stack.length > 0 && stack.every(tech => typeof tech === "string")));
+  assert.equal(content.mobileApps.length, 6);
+  assert.equal(new Set(content.mobileApps).size, 6);
+  for (const page of content.mobileApps) assert.ok(content.names[page]);
+  assert.equal(content.appName("home"), "Portfolio");
+  assert.equal(content.appName("projects"), content.names.projects);
+  assert.equal(content.say("bonjour", "hello"), lang === "fr" ? "bonjour" : "hello");
+}
+console.log("Feature content checks passed: labels, project order and technology alignment in both languages.");

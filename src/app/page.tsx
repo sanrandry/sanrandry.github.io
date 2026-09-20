@@ -1,6 +1,4 @@
-"use client";
-
-import WebOSPortfolio from "@/components/WebOSPortfolio";
+import WebOSPortfolio from "@/features/web-os/WebOSPortfolio";
 
 export default function Home() {
   return <WebOSPortfolio />;

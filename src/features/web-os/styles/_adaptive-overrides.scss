@@ -1,0 +1,228 @@
+@media (max-width: 540px) {
+  .experience-dialog {
+    padding: 20px;
+    width: calc(100% - 24px);
+    border-radius: 25px;
+  }
+  .experience-dialog header {
+    margin-bottom: 22px;
+  }
+  .experience-dialog h2 {
+    font-size: 39px;
+  }
+  .experience-dialog > p {
+    font-size: 13px;
+  }
+  .experience-options {
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .experience-option {
+    padding: 11px 13px 18px;
+    border-radius: 18px;
+  }
+  .experience-option[aria-pressed="true"] {
+    padding: 10px 12px 17px;
+  }
+  .experience-preview {
+    height: 108px;
+    margin-bottom: 10px;
+  }
+  .preview-window {
+    height: 75px;
+    left: 0;
+    width: 90%;
+    top: 22px;
+    border-width: 3px;
+    border-top-width: 10px;
+  }
+  .preview-window > span {
+    inset: 18px 6px 6px 20px;
+  }
+  .preview-phone {
+    width: 44px;
+    height: 88px;
+    border-width: 3px;
+    border-radius: 12px;
+    right: -3px;
+    padding: 9px 4px 3px;
+  }
+  .preview-phone > i {
+    left: 10px;
+    width: 17px;
+    height: 4px;
+    top: 2px;
+  }
+  .preview-phone > span {
+    height: 29px;
+    margin-bottom: 4px;
+  }
+  .preview-phone > b {
+    width: 11px;
+    height: 11px;
+    margin-right: 3px;
+  }
+  .option-google .preview-phone > i {
+    left: 17px;
+  }
+  .experience-option-title {
+    font-size: 22px;
+  }
+  .experience-option-title svg {
+    width: 18px;
+  }
+  .experience-option-subtitle {
+    font-size: 10px;
+  }
+  .experience-option-copy {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+  .experience-dialog > .experience-footnote {
+    font-size: 10px;
+  }
+}
+@media (max-width: 359px) {
+  .experience-dialog h2 {
+    font-size: 33px;
+  }
+  .experience-option-title {
+    font-size: 19px;
+  }
+  .experience-option-title svg {
+    display: none;
+  }
+  .ecosystem-google .pixel-at-glance .desktop-clock {
+    font-size: 25px;
+  }
+  .ecosystem-google .ios-widgets > button {
+    padding: 12px;
+  }
+  .ecosystem-google .ios-profile-widget strong {
+    font-size: 21px;
+  }
+  .ecosystem-google .ios-app-icon {
+    width: 53px;
+    height: 53px;
+  }
+}
+@media (max-height: 500px) and (max-width: 1024px) and (pointer: coarse) {
+  .ecosystem-google {
+    background: #ccd8bc;
+    --ios-status-height: max(40px, env(safe-area-inset-top));
+    --ios-bottom: calc(131px + env(safe-area-inset-bottom));
+  }
+  .ecosystem-google .ios-statusbar {
+    padding-top: 9px;
+  }
+  .ecosystem-google .ios-island {
+    top: 13px;
+  }
+  .ecosystem-google .ios-home-content {
+    gap: 15px 25px;
+    padding-top: 10px;
+  }
+  .pixel-at-glance {
+    grid-column: 1 / -1;
+    gap: 5px;
+    margin: 0;
+  }
+  .pixel-at-glance .desktop-clock {
+    font-size: 24px;
+  }
+  .pixel-at-glance > span:last-child {
+    display: none;
+  }
+  .ecosystem-google .ios-widgets {
+    margin-bottom: 0;
+  }
+  .ecosystem-google .ios-app-grid .ios-app-icon {
+    width: 49px;
+    height: 49px;
+  }
+  .ecosystem-google .ios-dock {
+    max-width: 355px;
+    padding-bottom: 7px;
+  }
+  .ecosystem-google .ios-dock :is(button, a),
+  .ecosystem-google .ios-dock .ios-app-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .ecosystem-google .ios-search-trigger {
+    max-width: 355px;
+    min-height: 48px;
+  }
+  .ecosystem-google .ios-launcher-indicator {
+    margin-top: 9px;
+  }
+  .ecosystem-google .ios-tabs {
+    min-height: 55px;
+  }
+  .ecosystem-google .ios-tabs > button {
+    min-height: 48px;
+  }
+}
+/* Keep the label's typography separate from the navigation glyph. */
+.ios-back > .ios-back-label {
+  font: inherit;
+  margin: 0;
+}
+@media (min-width: 768px) {
+  .ecosystem-google .desktop-shortcuts {
+    top: 36px;
+  }
+}
+@media (max-width: 767px),
+  (max-width: 1024px) and (max-height: 500px) and (pointer: coarse) {
+  .ecosystem-google .ios-back {
+    min-width: 48px;
+    width: 48px;
+    justify-content: center;
+  }
+  .ecosystem-google .ios-back > span {
+    font-size: 25px;
+  }
+  .ecosystem-google .ios-back-label {
+    display: none;
+  }
+  .ecosystem-google .ios-app-title {
+    text-align: left;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  .ecosystem-google .ios-app-settings {
+    width: 48px;
+    min-width: 48px;
+    padding: 0;
+    font-size: 25px !important;
+  }
+}
+.ecosystem-google .ios-search-results .ios-app-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dce8cc;
+  color: #39572b;
+  border: 0;
+  box-shadow: none;
+}
+.ecosystem-google .ios-search-results .ios-icon-projects,
+.ecosystem-google .ios-search-results .ios-icon-contact {
+  background: #e4d7f1;
+  color: #63457d;
+}
+.ecosystem-google .ios-search-results .ios-icon-experience {
+  background: #f0e5bd;
+  color: #6b5a29;
+}
+@media (min-width: 768px) {
+  .ecosystem-google .ios-spotlight {
+    max-height: min(680px, calc(100dvh - 110px));
+  }
+}
+@media (max-width: 1024px) and (max-height: 500px) and (pointer: coarse) {
+  .ecosystem-google .ios-spotlight {
+    max-height: calc(100dvh - 100px);
+  }
+}

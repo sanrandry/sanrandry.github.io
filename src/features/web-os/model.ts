@@ -33,7 +33,8 @@ export function parseExperience(value: unknown): Experience | null {
   return value === "apple" || value === "google" ? value : null;
 }
 
-export type Page = "home" | "projects" | "experience" | "about" | "contact" | "terminal";
+export type Page =
+  "home" | "projects" | "experience" | "about" | "contact" | "terminal";
 export type PortfolioView = {
   page: Page;
   appOpen: boolean;
@@ -42,18 +43,44 @@ export type PortfolioView = {
   depth: number;
 };
 export const initialView: PortfolioView = {
-  page: "home", appOpen: false, overlay: null, project: 0, depth: 0,
+  page: "home",
+  appOpen: false,
+  overlay: null,
+  project: 0,
+  depth: 0,
 };
 
-export function parsePortfolioView(value: unknown, projectCount: number): PortfolioView | null {
+export function parsePortfolioView(
+  value: unknown,
+  projectCount: number,
+): PortfolioView | null {
   if (!value || typeof value !== "object") return null;
   const view = value as PortfolioView;
   if (
-    !["home", "projects", "experience", "about", "contact", "terminal"].includes(view.page) ||
+    ![
+      "home",
+      "projects",
+      "experience",
+      "about",
+      "contact",
+      "terminal",
+    ].includes(view.page) ||
     typeof view.appOpen !== "boolean" ||
-    ![null, "project", "search", "settings", "experience"].includes(view.overlay) ||
-    !Number.isSafeInteger(view.project) || view.project < 0 || view.project >= projectCount ||
-    !Number.isSafeInteger(view.depth) || view.depth < 0
-  ) return null;
-  return { page: view.page, appOpen: view.appOpen, overlay: view.overlay, project: view.project, depth: view.depth };
+    ![null, "project", "search", "settings", "experience"].includes(
+      view.overlay,
+    ) ||
+    !Number.isSafeInteger(view.project) ||
+    view.project < 0 ||
+    view.project >= projectCount ||
+    !Number.isSafeInteger(view.depth) ||
+    view.depth < 0
+  )
+    return null;
+  return {
+    page: view.page,
+    appOpen: view.appOpen,
+    overlay: view.overlay,
+    project: view.project,
+    depth: view.depth,
+  };
 }

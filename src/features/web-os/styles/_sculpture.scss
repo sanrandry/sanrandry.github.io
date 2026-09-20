@@ -1,0 +1,190 @@
+/* ponytail: three CSS cuboids; WebGL only if actual model assets become necessary. */
+.sculpture-scene {
+  height: 245px;
+  position: relative;
+  perspective: 900px;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+}
+.sculpture {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.25s ease-out;
+}
+.sculpture-turn {
+  width: 158px;
+  height: 158px;
+  position: absolute;
+  left: 50%;
+  top: 51%;
+  margin: -79px;
+  transform-style: preserve-3d;
+  transform: rotateX(58deg) rotateZ(-36deg)
+    scale3d(
+      var(--sculpture-scale, 0.88),
+      var(--sculpture-scale, 0.88),
+      var(--sculpture-scale, 0.88)
+    );
+  --sculpture-scale: 0.88;
+  animation: float-stack 7s ease-in-out infinite;
+}
+.slab {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.slab-top {
+  transform: translateZ(59px);
+  --top: linear-gradient(135deg, #f1f8ff, #b9d5e9);
+  --side: #9dbed8;
+}
+.slab-middle {
+  transform: translateZ(0);
+  --top: linear-gradient(135deg, #72b5ff, #3882cf);
+  --side: #276297;
+}
+.slab-bottom {
+  transform: translateZ(-59px);
+  --top: linear-gradient(135deg, #e2ecee, #a7c2cb);
+  --side: #7a9da9;
+}
+.slab-face {
+  position: absolute;
+  border: 1px solid #ffffff6e;
+  backface-visibility: hidden;
+}
+.slab-upper,
+.slab-under {
+  width: 158px;
+  height: 158px;
+  background: var(--top);
+  border-radius: 14px;
+  box-shadow: inset 0 0 18px #ffffff50;
+  display: grid;
+  place-items: center;
+}
+.slab-upper {
+  transform: translateZ(10px);
+}
+.slab-upper > svg {
+  color: #3c79a0;
+  filter: drop-shadow(0 2px 0 #fff);
+}
+.slab-under {
+  transform: rotateX(180deg) translateZ(10px);
+}
+.slab-front,
+.slab-back {
+  width: 134px;
+  height: 20px;
+  left: 12px;
+  top: 69px;
+  background: var(--side);
+}
+.slab-front {
+  transform: rotateX(-90deg) translateZ(79px);
+}
+.slab-back {
+  transform: rotateX(90deg) translateZ(79px);
+}
+.slab-left,
+.slab-right {
+  width: 20px;
+  height: 134px;
+  top: 12px;
+  left: 69px;
+  background: var(--side);
+}
+.slab-left {
+  transform: rotateY(-90deg) translateZ(79px);
+}
+.slab-right {
+  transform: rotateY(90deg) translateZ(79px);
+}
+.chip-lines {
+  width: 74px;
+  height: 74px;
+  border: 1px solid #ffffff70;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 9px #ffffff0c,
+    0 0 0 10px #ffffff38,
+    0 0 0 21px #ffffff0c,
+    0 0 0 22px #ffffff28;
+}
+.sculpture-shadow {
+  position: absolute;
+  left: 18%;
+  right: 12%;
+  bottom: 29px;
+  height: 43px;
+  border-radius: 50%;
+  background: #6a8da946;
+  filter: blur(18px);
+}
+.orbit {
+  position: absolute;
+  width: 278px;
+  height: 118px;
+  border: 1px solid #a4bec238;
+  border-radius: 50%;
+  left: calc(50% - 139px);
+  top: 96px;
+  transform: rotate(-30deg);
+}
+.orbit-two {
+  width: 230px;
+  left: calc(50% - 115px);
+  transform: rotate(35deg);
+  border-style: dashed;
+  opacity: 0.7;
+}
+.floating-tag {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  background: #ffffffd4;
+  border: 1px solid #dce6f0;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px #496e9112;
+  color: #596f85;
+  font-size: 8px;
+  font-family: monospace;
+  z-index: 2;
+}
+.tag-one {
+  top: 44px;
+  right: 3px;
+  transform: rotate(6deg);
+}
+.tag-one > span {
+  width: 6px;
+  height: 6px;
+  background: #76aa92;
+  border-radius: 50%;
+}
+.tag-two {
+  bottom: 45px;
+  left: 3px;
+  transform: rotate(-6deg);
+}
+.scene-caption {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 8px;
+  color: #5e6c7a;
+  letter-spacing: 0.2px;
+}
+.tiny-cross {
+  color: #7e9eaf;
+  font-size: 15px;
+  vertical-align: middle;
+  margin-right: 4px;
+}

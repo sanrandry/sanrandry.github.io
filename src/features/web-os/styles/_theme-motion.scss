@@ -1,0 +1,129 @@
+.theme-dark {
+  --ink: #e1e8ef;
+  --muted: #9ba9b9;
+  --line: #34404d;
+  --paper: #222b35;
+  --sidebar: #26303cef;
+  --toolbar: #28323d;
+  --soft: #33465a;
+}
+.theme-dark .wallpaper {
+  filter: brightness(0.65) saturate(0.85);
+}
+.theme-dark .menubar {
+  background: #1c2d40b3;
+  color: #dfebf4;
+}
+.theme-dark .hero-copy h1 {
+  color: #e6edf2;
+}
+.theme-dark .hero-copy h1 > span {
+  color: #91aebf;
+}
+.theme-dark .hero-copy > p {
+  color: #9baaba;
+}
+.theme-dark .finder-sidebar nav > button.is-active {
+  background: #33485e;
+  color: #aecffc;
+}
+.theme-dark .finder-sidebar nav > button,
+.theme-dark .sidebar-socials a {
+  color: #a2b2c3;
+}
+.theme-dark .sidebar-profile small,
+.theme-dark .hello-label {
+  color: #99aaba;
+}
+.theme-dark .availability {
+  color: #93baa3;
+}
+.theme-dark .stack-strip b {
+  color: #9caebf;
+}
+.theme-dark .floating-tag {
+  background: #324454;
+  color: #bbd1dd;
+  border-color: #4b6172;
+}
+.theme-dark .window-status {
+  color: #9aa9b8;
+}
+.theme-dark .project-card-info small {
+  color: #a0aebb;
+}
+.theme-dark .text-button {
+  color: #a0b2c8;
+}
+@keyframes float-stack {
+  0%,
+  100% {
+    transform: translateY(0) rotateX(58deg) rotateZ(-36deg)
+      scale3d(
+        var(--sculpture-scale, 0.88),
+        var(--sculpture-scale, 0.88),
+        var(--sculpture-scale, 0.88)
+      );
+  }
+  50% {
+    transform: translateY(-8px) rotateX(55deg) rotateZ(-31deg)
+      scale3d(
+        var(--sculpture-scale, 0.88),
+        var(--sculpture-scale, 0.88),
+        var(--sculpture-scale, 0.88)
+      );
+  }
+}
+@keyframes window-in {
+  from {
+    opacity: 0;
+    scale: 0.98;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+  }
+}
+@keyframes content-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.motion-off *,
+.motion-off *::before,
+.motion-off *::after {
+  animation: none !important;
+  transition: none !important;
+}
+.motion-off .sculpture {
+  transform: none;
+}
+.motion-off .project-card:hover,
+.motion-off .primary-button:hover,
+.motion-off .dock-item:hover,
+.motion-off .dock-item:focus-visible {
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .desktop *,
+  .desktop *::before,
+  .desktop *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .desktop .sculpture,
+  .desktop .project-card:hover,
+  .desktop .primary-button:hover,
+  .desktop .dock-item:hover,
+  .desktop .dock-item:focus-visible {
+    transform: none;
+  }
+}

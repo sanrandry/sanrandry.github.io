@@ -1,0 +1,372 @@
+/* ChromeOS: tonal surfaces, conventional window controls and a full-width shelf. */
+.ecosystem-google {
+  background: #ccd8bc;
+  --ink: #26352c;
+  --muted: #59675c;
+  --paper: #fcfdf6;
+  --sidebar: #edf2e8;
+  --toolbar: #e7eddf;
+  --line: #dce4d5;
+  --accent: #466d37;
+  --soft: #dceacc;
+  font-family: var(--font-roboto), "Segoe UI", sans-serif;
+}
+.ecosystem-google.theme-dark {
+  background: #233223;
+  --ink: #e6eddf;
+  --muted: #b7c3ae;
+  --paper: #20271e;
+  --sidebar: #272f24;
+  --toolbar: #313c2b;
+  --line: #47523e;
+  --accent: #bad49d;
+  --soft: #394b2e;
+}
+.desktop.ecosystem-google .wallpaper {
+  background: #ccd8bc;
+}
+.desktop.ecosystem-google .wallpaper-ridge {
+  box-shadow: none;
+  border: none;
+}
+.desktop.ecosystem-google .ridge-one {
+  background: #789879;
+  width: 85%;
+  height: 140%;
+  top: -49%;
+  left: -30%;
+  border-radius: 48%;
+  transform: rotate(35deg);
+}
+.desktop.ecosystem-google .ridge-two {
+  background: #ded2eb;
+  width: 100%;
+  height: 145%;
+  top: 33%;
+  left: 32%;
+  border-radius: 48%;
+  transform: rotate(-34deg);
+}
+.desktop.ecosystem-google .ridge-three {
+  background: #b2c994;
+  width: 64%;
+  height: 117%;
+  top: 55%;
+  left: 11%;
+  border-radius: 48%;
+  transform: rotate(-36deg);
+  box-shadow: inset 45px 8px 0 #e7e4c6;
+}
+.desktop.ecosystem-google .wallpaper-grain {
+  opacity: 0.05;
+}
+.desktop.ecosystem-google.theme-dark .wallpaper {
+  filter: brightness(0.44) saturate(0.8);
+}
+.ecosystem-google > .menubar {
+  display: none;
+}
+.ecosystem-google .primary-button {
+  background: #476939;
+  color: #fff !important;
+  border-color: transparent;
+  border-radius: 30px;
+  box-shadow: none;
+}
+.ecosystem-google .primary-button:hover {
+  background: #38592c;
+}
+.ecosystem-google .hero-copy h1 > span {
+  color: #637c57;
+}
+.ecosystem-google .contact-socials,
+.ecosystem-google .project-number {
+  color: var(--muted);
+}
+.ecosystem-google .experience-list h3 {
+  color: var(--ink);
+}
+.ecosystem-google .project-card {
+  border-radius: 20px;
+}
+.ecosystem-google .project-card-info {
+  background: var(--sidebar);
+}
+.ecosystem-google .project-list button {
+  border-radius: 14px;
+}
+.ecosystem-google .project-tags > span {
+  color: #425d34;
+  background: #e4edd9;
+}
+.ecosystem-google .ios-sheet {
+  border-radius: 28px;
+  background: var(--paper);
+}
+.ecosystem-google .ios-settings-group {
+  border-radius: 24px;
+  background: var(--sidebar);
+}
+.ecosystem-google .ios-settings-group > button {
+  min-height: 64px;
+}
+.ecosystem-google .ios-settings-group svg {
+  color: var(--muted);
+}
+.ecosystem-google .ios-switch {
+  width: 48px;
+  height: 30px;
+  border: 2px solid #75836b;
+  background: #e0e5d8;
+}
+.ecosystem-google .ios-switch::after {
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #65795b;
+  box-shadow: none;
+}
+.ecosystem-google .ios-switch.is-on {
+  background: #456837;
+  border-color: #456837;
+}
+.ecosystem-google .ios-switch.is-on::after {
+  background: #e2efce;
+}
+.ecosystem-google .ios-sheet header > button,
+.ecosystem-google .ios-classic-link {
+  color: #416631 !important;
+}
+.ecosystem-google.theme-dark .primary-button {
+  background: #c2dba5;
+  color: #23381b !important;
+}
+.ecosystem-google.theme-dark .hero-copy h1 > span {
+  color: #b7c99d;
+}
+.ecosystem-google.theme-dark .ios-sheet header > button,
+.ecosystem-google.theme-dark .ios-classic-link {
+  color: #c2dba5 !important;
+}
+.ecosystem-google.theme-dark .project-tags > span {
+  color: #d3e7bf;
+  background: #3b4c31;
+}
+.ecosystem-google.theme-dark .project-card-info {
+  background: var(--sidebar);
+}
+@media (min-width: 768px) {
+  .ecosystem-google .window-stage {
+    top: 10px;
+    bottom: 80px;
+  }
+  .ecosystem-google .portfolio-window {
+    border-radius: 18px;
+    border: 1px solid #72826d55;
+    box-shadow: 0 24px 65px #25382c4d;
+  }
+  .ecosystem-google .window-toolbar {
+    padding: 0 12px 0 23px;
+    height: 54px;
+    gap: 20px;
+    border: 0;
+  }
+  .ecosystem-google .window-breadcrumb {
+    order: 0;
+  }
+  .ecosystem-google .window-breadcrumb > svg {
+    color: #557449;
+  }
+  .ecosystem-google .toolbar-contact {
+    order: 1;
+  }
+  .ecosystem-google .traffic-lights {
+    order: 2;
+    width: auto;
+    gap: 6px;
+  }
+  .ecosystem-google .traffic-lights button {
+    width: 32px;
+    height: 32px;
+    color: var(--ink);
+  }
+  .ecosystem-google .traffic-lights button::before {
+    display: none;
+  }
+  .ecosystem-google .traffic-lights button:hover {
+    background: var(--soft);
+  }
+  .ecosystem-google .traffic-lights span {
+    opacity: 1;
+    font-size: 21px;
+  }
+  .ecosystem-google .traffic-close {
+    order: 2;
+  }
+  .ecosystem-google .traffic-minimize {
+    order: 0;
+  }
+  .ecosystem-google .traffic-maximize {
+    order: 1;
+  }
+  .ecosystem-google .finder-sidebar {
+    border: 0;
+    padding-top: 23px;
+  }
+  .ecosystem-google .finder-sidebar nav > button {
+    border-radius: 25px;
+    min-height: 43px;
+  }
+  .ecosystem-google .finder-sidebar nav > button.is-active {
+    background: #d9e8c6;
+    color: #304c23;
+  }
+  .ecosystem-google.theme-dark .finder-sidebar nav > button.is-active {
+    background: #4e643b;
+    color: #e0efca;
+  }
+  .ecosystem-google .sidebar-profile .avatar {
+    border-radius: 50%;
+  }
+  .ecosystem-google .desktop-shortcuts > :is(button, a) {
+    top: 36px;
+    color: #253b2c;
+    text-shadow: none;
+  }
+  .ecosystem-google .desktop-folder {
+    border-radius: 50%;
+    background: #e4ecd5;
+    color: #4a6f32;
+    border-color: #ffffff90;
+    box-shadow: 0 4px 14px #36432c20;
+  }
+  .ecosystem-google.theme-dark .desktop-shortcuts > :is(button, a) {
+    color: #eff5e6;
+  }
+  .ecosystem-google .dock-zone {
+    position: absolute;
+    inset: auto 0 0;
+    width: 100%;
+    height: 72px;
+    transform: none;
+    background: #e4eadacc;
+    border-top: 1px solid #ffffff70;
+    backdrop-filter: blur(24px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .ecosystem-google .desktop-hint {
+    display: none;
+  }
+  .ecosystem-google .dock {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    gap: 8px;
+    backdrop-filter: none;
+  }
+  .ecosystem-google .dock-item {
+    width: 48px;
+    height: 52px;
+  }
+  .ecosystem-google .dock-icon {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    box-shadow: none;
+    border: 0;
+  }
+  .ecosystem-google .dock-home .dock-icon {
+    background: #e6edf9;
+    color: #3967b8;
+  }
+  .ecosystem-google .dock-projects .dock-icon {
+    background: #f3db8b;
+    color: #695511;
+  }
+  .ecosystem-google .dock-experience .dock-icon {
+    background: #e2cef0;
+    color: #684787;
+  }
+  .ecosystem-google .dock-terminal .dock-icon {
+    background: #dbe5cf;
+    color: #47633a;
+  }
+  .ecosystem-google .dock-contact .dock-icon {
+    background: #d7e4f6;
+    color: #3b639c;
+  }
+  .ecosystem-google .dock-item.is-running::after {
+    background: #436431;
+  }
+  .ecosystem-google .dock-item:hover,
+  .ecosystem-google .dock-item:focus-visible {
+    transform: translateY(-4px);
+  }
+  .ecosystem-google .chrome-system-controls {
+    display: contents;
+  }
+  .chrome-launcher,
+  .chrome-preferences,
+  .chrome-system-controls .desktop-power {
+    position: absolute;
+    z-index: 10;
+    bottom: 13px;
+    min-height: 46px;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+  }
+  .chrome-system-controls .desktop-power {
+    left: 80px;
+    padding-inline: 14px;
+  }
+  .chrome-launcher {
+    left: 20px;
+    width: 46px;
+    background: #d0dcc5;
+  }
+  .chrome-preferences {
+    right: 20px;
+    gap: 12px;
+    padding: 0 17px;
+    background: #d0dcc5;
+  }
+  .chrome-preferences .desktop-clock {
+    font-size: 13px;
+  }
+  .chrome-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #446b35;
+  }
+  .ecosystem-google.theme-dark .dock-zone {
+    background: #273123dd;
+    border-color: #61725166;
+  }
+  .ecosystem-google.theme-dark :is(.chrome-launcher, .chrome-preferences) {
+    background: #405333;
+  }
+  .ecosystem-google.theme-dark .chrome-status-dot {
+    background: #bddb9e;
+  }
+  .ecosystem-google .ios-settings {
+    inset: auto 18px 86px auto;
+    margin: 0;
+    width: 370px;
+    max-height: calc(100dvh - 110px);
+  }
+  .ecosystem-google .ios-spotlight {
+    inset: auto auto 86px 18px;
+    margin: 0;
+    width: min(560px, calc(100% - 36px));
+    max-height: calc(100dvh - 110px);
+  }
+}

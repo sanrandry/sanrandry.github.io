@@ -1,5 +1,63 @@
 # Portfolio — boucle BMAD légère
 
+## Boucle — refactor maintenable, 20 septembre 2026
+
+### Cadrage
+
+- Demande : sortir du fichier unique, rendre le code lisible et maintenable par un humain.
+- Point de départ : `WebOSPortfolio.tsx` contient toute la coque, les vues, les dialogues et les effets navigateur ; `desktop.css` concentre tous les styles.
+- Boucle BMAD adaptée, sans installation du framework : analyser → définir les responsabilités → extraire → tester/revoir → corriger → revalider. Référence : [Build a Change](https://docs.bmad-method.org/build/build-a-change/).
+- Hors périmètre : nouveau design, nouvelles fonctionnalités, modification du contenu professionnel et déploiement. Seule dépendance ajoutée : Sass, à la demande explicite de SCSS ; aucune version existante modifiée.
+
+### Architecture retenue
+
+- Un dossier fonctionnel `src/features/web-os/`, une entrée de composition explicite.
+- Règles pures et contenu sans React ni API navigateur ; hooks pour historique/préférence, fenêtre et plein écran ; UI séparée en coques, vues, dialogues et petits éléments partagés.
+- État conservé au niveau de sa durée de vie : historique, terminal et retour de copie ne doivent pas disparaître lors d'un changement de vue.
+- SCSS découpé par responsabilité avec `@use` ; ordre de cascade et sélecteurs conservés. À la demande complémentaire : Tailwind pour les styles simples de 31 règles (vues/cartes/dialogue), sans duplication de leurs déclarations de base en SCSS. Version classique isolée, inchangée.
+- Pas de repository, conteneur d'injection, classe de cas d'usage ou contexte global supplémentaire : aucun besoin métier ne les justifie.
+
+### Acceptation / suivi
+
+- [x] Entrée courte ; aucune nouvelle concentration des responsabilités dans un contrôleur géant.
+- [x] Comportements et markup conservés : univers, FR/EN, thème, mouvement, 3D, six vues, huit projets, terminal, contact, fenêtre, recherche et dialogues.
+- [x] Retour/Suivant, rechargement, focus et plein écran testés dans le navigateur.
+- [x] Cascade CSS vérifiée ; rendu bureau/mobile et version classique vérifiés.
+- [x] Tests, lint, TypeScript, build/export et contrôle du diff réussis.
+- [x] Guide de maintenance : où modifier quoi, dépendances et commandes de vérification.
+
+### État initial
+
+Tests de logique existants réussis avant modification. Deux images non suivies (`public/iMac.svg`, `public/imac-frame.png`) appartiennent à l'utilisateur et restent intactes.
+
+### Construction → revue → corrections
+
+- Entrée React : 2 024 → 120 lignes. Plus gros module TSX extrait : fenêtre, 272 lignes. Logique pure déplacée sans wrapper de compatibilité ; imports de route/tests actualisés.
+- État du terminal et retour de copie conservés dans `PortfolioViews`, hors sous-arbre remonté à chaque page. Test de régression navigateur ajouté pour historique et brouillon du terminal.
+- Choix d'univers/historique initialisés ensemble ; références des dialogues conservées et fiche nommée explicitement `projectDialog`. Synchronisation, nettoyage des listeners et restauration du focus relus.
+- Sass compile les styles du Web OS ; Tailwind reste compilé depuis le CSS global. Variables CSS dynamiques conservées, aucune abstraction SCSS artificielle.
+- Migration Tailwind : comparaison a détecté une différence réelle de largeur intrinsèque des statistiques à 320 px (`repeat(3, 1fr)` versus `minmax(0, 1fr)`). Valeur originale conservée explicitement. Alignement `start` et rayon `50%` conservés aussi.
+- Organisation App Router expliquée dans README avec référence officielle : routes dans `app`, fonctionnalité dans `features/web-os`, colocation également possible mais non obligatoire.
+
+### Preuves finales
+
+- `npm test` réussi : contrôles existants + contenu extrait, libellés, ordre FR/EN et correspondance technologies/projets. `npx tsc --noEmit` et `npm run build` réussis ; routes `/` et `/portfolio/` exportées.
+- `npm run lint` : zéro erreur, uniquement les trois avertissements `<img>` préexistants dans la version classique. `git diff --check` réussi.
+- Avant migration Tailwind, concaténation CSS identique à l'original et sortie Sass normalisée identique (79 204 octets). Après migration : 24 états comparés avant/après dans le navigateur (six vues × deux univers × 320/1440 px), **aucune différence sur les 30 propriétés calculées contrôlées**, y compris géométrie, couleurs et typographie.
+- Comparaison de rendu serveur original/refactor : 24 combinaisons vue/langue/univers, HTML identique hors classes utilitaires ajoutées. DOM initial hydraté identique avant migration Tailwind, hors horloges et marqueurs React.
+- **96 contrôles responsive sur l'export final** : six vues × deux univers × (FR clair / EN sombre) × 320/390/768/1440 px. Taille réelle et configuration contrôlées à chaque état ; aucun débordement horizontal du document ou du contenu.
+- Navigateur intégré : huit projets dans chaque univers, Retour/Suivant, fermeture/rechargement d'une fiche, réglages imbriqués, Échap, recherche accentuée, changement d'univers sans perte de vue, terminal conservé après navigation, fermeture/réduction/agrandissement et réouverture de fenêtre. Sortie native depuis la racine vers `about:blank` vérifiée, sans piège d'historique.
+- Entrée plein écran sur interaction et sortie par bouton testées dans les deux univers ; thème, langue, animations désactivées et 18 faces de la sculpture vérifiés. Route classique chargée sur l'export ; console de l'export final sans erreur/avertissement.
+
+### Limites / livraison
+
+- La commande CDP `npm run test:browser` n'a pas pu être exécutée : endpoint Chrome 9333 absent, endpoint 9222 non exploitable. Scénarios vérifiés via le navigateur intégré ; script existant enrichi et syntaxe contrôlée, sans annoncer un passage CDP inexistant. Refus d'API/stockage, Safari et appareils physiques non re-testés dans cette boucle.
+- Audit npm : 10 vulnérabilités dans les dépendances existantes, dont une classification critique pour Next.js ; Sass absent des paquets signalés. Versions préexistantes inchangées. Mise à jour de sécurité à traiter séparément ; pas de `npm audit fix --force` pendant le refactor.
+- Livraison initiale locale : aucun commit, push ni déploiement pendant le refactor. Guide de maintenance dans `README.md`, contrôles conservés dans `tests/`.
+- Demande complémentaire « deploy » : publication autorisée via le workflow GitHub Pages existant sur `main` ; les deux images utilisateur non suivies restent exclues du commit.
+
+---
+
 ## Extension — plein écran PC et bouton Éteindre
 
 Demande : reprendre le plein écran automatique du téléphone sur PC, avec un bouton pour en sortir.

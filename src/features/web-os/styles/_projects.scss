@@ -1,0 +1,215 @@
+.stack-strip {
+  padding: 17px 0;
+  border-block: 1px solid var(--line);
+}
+.stack-strip > span {
+  color: #5e6c7a;
+  font-size: 7px;
+  letter-spacing: 1px;
+  max-width: 69px;
+  line-height: 1.6;
+  flex-shrink: 0;
+}
+.stack-strip b {
+  color: #647381;
+  font-size: 13px;
+  letter-spacing: -0.4px;
+  font-weight: 600;
+}
+.stack-strip b > span {
+  font-weight: 400;
+}
+.section-label > h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.project-card {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+.project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 22px #263e5812;
+}
+.project-visual {
+  height: 112px;
+}
+.visual-0 {
+  background:
+    radial-gradient(ellipse at 80% 30%, #273e4d, transparent 70%), #17252d;
+}
+.visual-1 {
+  background: #e1e9e3;
+}
+.project-art-label {
+  position: absolute;
+  left: 19px;
+  top: 17px;
+  color: #b7c7d3;
+  font-size: 7px;
+  letter-spacing: 2px;
+  font-weight: 500;
+}
+.project-art-label > span {
+  display: block;
+  font-size: 22px;
+  margin-top: 40px;
+  letter-spacing: 0;
+}
+.visual-1 .project-art-label {
+  color: #476d5d;
+}
+.planet {
+  position: absolute;
+  width: 152px;
+  height: 152px;
+  border-radius: 50%;
+  right: 22px;
+  top: 23px;
+  background:
+    radial-gradient(ellipse at 26% 27%, #6e96a0 0, transparent 40%),
+    repeating-conic-gradient(
+      from 20deg,
+      #426a6b 0deg,
+      #526f7a 20deg,
+      #365563 42deg,
+      #698c91 70deg
+    );
+  box-shadow:
+    inset -36px -12px 30px #07181ded,
+    inset 3px 3px 9px #bee0db66,
+    0 0 40px #63a1b923;
+  transform: rotate(-20deg);
+}
+.planet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    ellipse at 0 5%,
+    transparent 0 13px,
+    #ffffff12 14px 15px,
+    transparent 16px 25px
+  );
+}
+.planet-orbit {
+  position: absolute;
+  width: 244px;
+  height: 65px;
+  right: -15px;
+  top: 64px;
+  border: 1px solid #8bacb169;
+  border-radius: 50%;
+  transform: rotate(-27deg);
+}
+.mini-dashboard {
+  width: 187px;
+  height: 135px;
+  position: absolute;
+  right: 20px;
+  top: 28px;
+  background: #f9fbf9;
+  border-radius: 6px;
+  transform: perspective(600px) rotateY(-15deg) rotateX(12deg) rotateZ(-7deg);
+  box-shadow: 3px 10px 25px #4668532b;
+  border: 1px solid #fff;
+}
+.mini-sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  left: 0;
+  border-right: 1px solid #dfe6e0;
+  background: repeating-linear-gradient(
+    #f0f4f0 0 10px,
+    #d9e5dd 11px 14px,
+    #f0f4f0 15px 25px
+  );
+  border-radius: 6px 0 0 6px;
+}
+.mini-chart {
+  position: absolute;
+  top: 22px;
+  left: 50px;
+  right: 12px;
+  height: 53px;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  border-bottom: 1px solid #dee7e0;
+}
+.mini-chart > i {
+  width: 15px;
+  height: 45%;
+  background: #9fb8a5;
+  border-radius: 3px 3px 0 0;
+}
+.mini-chart > i:nth-child(2) {
+  height: 70%;
+}
+.mini-chart > i:nth-child(3) {
+  height: 58%;
+}
+.mini-chart > i:nth-child(4) {
+  height: 88%;
+}
+.mini-chart > i:nth-child(5) {
+  height: 100%;
+  background: #5c9479;
+}
+.mini-row {
+  position: absolute;
+  top: 87px;
+  left: 50px;
+  right: 12px;
+  height: 23px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(#e7eee8 0 3px, transparent 4px 9px);
+}
+.project-card-info {
+  padding: 15px 15px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #929ca8;
+}
+.project-card-info strong {
+  display: block;
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 550;
+  letter-spacing: -0.1px;
+}
+.project-card-info small {
+  display: block;
+  font-size: 10px;
+  color: #5e6c7a;
+  margin-top: 6px;
+}
+.content-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 18px;
+  padding: 13px 0 15px;
+  border-top: 1px solid var(--line);
+  font-size: 8px;
+  color: #5e6c7a;
+}
+.content-footer > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.content-footer button {
+  font-size: 8px;
+}
